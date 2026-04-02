@@ -78,10 +78,10 @@ const AdminOrders = () => {
 
       await supabase.from("order_status_history").insert({
         order_id: orderId,
-        status: newStatus as any,
+        status: newStatus,
         note: statusNote || `تم تغيير الحالة إلى ${orderStatusLabels[newStatus]?.label}`,
         changed_by: user.id,
-      });
+      } as any);
 
       toast({ title: "تم التحديث", description: `تم تغيير حالة الطلب إلى ${orderStatusLabels[newStatus]?.label}` });
       setStatusNote("");
