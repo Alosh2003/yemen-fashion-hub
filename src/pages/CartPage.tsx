@@ -59,9 +59,11 @@ const CartPage = () => {
                 <span>الإجمالي</span>
                 <span className="text-primary">{formatPrice(totalPrice)} ر.ي</span>
               </div>
-              <Button className="w-full gold-gradient text-primary-foreground font-bold text-base py-6 hover:opacity-90">
-                إتمام الشراء
-              </Button>
+              <Link to="/checkout">
+                <Button className="w-full gold-gradient text-primary-foreground font-bold text-base py-6 hover:opacity-90">
+                  إتمام الشراء
+                </Button>
+              </Link>
               <button onClick={clearCart} className="w-full text-center text-sm text-muted-foreground hover:text-destructive transition-colors">
                 إفراغ السلة
               </button>
