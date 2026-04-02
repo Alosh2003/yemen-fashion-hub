@@ -3,7 +3,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { User, Mail, Phone, MapPin, LogOut, Shield } from "lucide-react";
+import { User, Mail, Phone, MapPin, LogOut, Shield, Package } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const AccountPage = () => {
