@@ -15,6 +15,8 @@ type Order = {
   payment_method: string;
   customer_name: string;
   city: string;
+  area: string;
+  address: string;
   total: number;
   estimated_delivery_days: number;
   created_at: string;

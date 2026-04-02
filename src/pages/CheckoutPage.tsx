@@ -98,7 +98,7 @@ const CheckoutPage = () => {
           delivery_fee: deliveryFee,
           total: grandTotal,
           estimated_delivery_days: estimatedDays,
-        })
+        } as any)
         .select()
         .single();
 
