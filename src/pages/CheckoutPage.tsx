@@ -91,7 +91,7 @@ const CheckoutPage = () => {
           customer_name: delivery.fullName,
           customer_phone: delivery.phone,
           city: delivery.city,
-          area: delivery.area,
+          area: delivery.area || null,
           address: delivery.address,
           notes: delivery.notes || null,
           subtotal: totalPrice,
