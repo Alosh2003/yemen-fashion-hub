@@ -126,10 +126,10 @@ const CheckoutPage = () => {
       // Insert initial status history
       await supabase.from("order_status_history").insert({
         order_id: order.id,
-        status: "pending" as const,
+        status: "pending",
         note: "تم إنشاء الطلب",
         changed_by: user.id,
-      });
+      } as any);
 
       setPlacedOrderNumber(order.order_number);
       setOrderPlaced(true);
