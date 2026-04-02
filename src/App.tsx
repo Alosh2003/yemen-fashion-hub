@@ -14,6 +14,7 @@ import CheckoutPage from "./pages/CheckoutPage";
 import AuthPage from "./pages/AuthPage";
 import AccountPage from "./pages/AccountPage";
 import AdminDashboard from "./pages/AdminDashboard";
+import MyOrdersPage from "./pages/MyOrdersPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,9 @@ const App = () => (
               <Route path="/cart" element={<CartPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/auth" element={<AuthPage />} />
+              <Route path="/my-orders" element={
+                <ProtectedRoute><MyOrdersPage /></ProtectedRoute>
+              } />
               <Route path="/account" element={
                 <ProtectedRoute><AccountPage /></ProtectedRoute>
               } />

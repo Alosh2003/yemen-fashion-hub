@@ -3,7 +3,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { User, Mail, Phone, MapPin, LogOut, Shield } from "lucide-react";
+import { User, Mail, Phone, MapPin, LogOut, Shield, Package } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const AccountPage = () => {
@@ -81,10 +81,18 @@ const AccountPage = () => {
               </div>
             </div>
 
+            <Button
+              onClick={() => navigate("/my-orders")}
+              className="w-full gold-gradient text-primary-foreground font-bold hover:opacity-90"
+            >
+              <Package className="w-4 h-4 ml-2" /> طلباتي
+            </Button>
+
             {role === "admin" && (
               <Button
                 onClick={() => navigate("/admin")}
-                className="w-full gold-gradient text-primary-foreground font-bold hover:opacity-90"
+                variant="outline"
+                className="w-full border-primary text-primary hover:bg-primary/10 font-bold"
               >
                 لوحة التحكم
               </Button>
