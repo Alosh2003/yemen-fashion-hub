@@ -168,6 +168,66 @@ export type Database = {
         }
         Relationships: []
       }
+      products: {
+        Row: {
+          badge: string | null
+          category: string
+          colors: string[] | null
+          created_at: string
+          description: string | null
+          id: string
+          image: string | null
+          is_active: boolean | null
+          name: string
+          original_price: number | null
+          price: number
+          rating: number | null
+          reviews: number | null
+          sizes: string[] | null
+          stock: number | null
+          subcategory: string
+          updated_at: string
+        }
+        Insert: {
+          badge?: string | null
+          category?: string
+          colors?: string[] | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image?: string | null
+          is_active?: boolean | null
+          name: string
+          original_price?: number | null
+          price?: number
+          rating?: number | null
+          reviews?: number | null
+          sizes?: string[] | null
+          stock?: number | null
+          subcategory?: string
+          updated_at?: string
+        }
+        Update: {
+          badge?: string | null
+          category?: string
+          colors?: string[] | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image?: string | null
+          is_active?: boolean | null
+          name?: string
+          original_price?: number | null
+          price?: number
+          rating?: number | null
+          reviews?: number | null
+          sizes?: string[] | null
+          stock?: number | null
+          subcategory?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
