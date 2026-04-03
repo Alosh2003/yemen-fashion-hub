@@ -9,7 +9,7 @@ const ProductCard = ({ product }: { product: Product }) => {
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
-    addItem(product, product.sizes[0], product.colors[0]);
+    addItem(product, product.sizes?.[0] || "", product.colors?.[0] || "");
     toast.success(`تمت إضافة "${product.name}" إلى السلة`);
   };
 
@@ -20,7 +20,7 @@ const ProductCard = ({ product }: { product: Product }) => {
       <div className="bg-card rounded-xl overflow-hidden border border-border hover-lift">
         <div className="relative aspect-[3/4] overflow-hidden">
           <img
-            src={product.image}
+            src={product.image || "/placeholder.svg"}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
@@ -49,8 +49,8 @@ const ProductCard = ({ product }: { product: Product }) => {
           </div>
           <div className="flex items-center gap-2">
             <span className="font-black text-primary">{formatPrice(product.price)} ر.ي</span>
-            {product.originalPrice && (
-              <span className="text-xs text-muted-foreground line-through">{formatPrice(product.originalPrice)}</span>
+            {product.original_price && (
+              <span className="text-xs text-muted-foreground line-through">{formatPrice(product.original_price)}</span>
             )}
           </div>
         </div>
