@@ -1,31 +1,32 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { categories, Product } from "@/data/products";
+import { Product } from "@/data/products";
 import { supabase } from "@/integrations/supabase/client";
 import ProductCard from "@/components/ProductCard";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Loader2 } from "lucide-react";
 
+type CategoryInfo = { name: string; icon: string };
+
 const CategoryPage = () => {
   const { id } = useParams<{ id: string }>();
-  const category = categories.find((c) => c.id === id);
+  const [category, setCategory] = useState<CategoryInfo | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchData = async () => {
       setLoading(true);
-      const { data } = await supabase
-        .from("products")
-        .select("*")
-        .eq("category", id!)
-        .eq("is_active", true)
-        .order("created_at", { ascending: false });
-      setProducts((data as Product[]) || []);
+      const [{ data: catData }, { data: prodData }] = await Promise.all([
+        supabase.from("categories").select("name, icon").eq("slug", id!).maybeSingle(),
+        supabase.from("products").select("*").eq("category", id!).eq("is_active", true).order("created_at", { ascending: false }),
+      ]);
+      setCategory(catData);
+      setProducts((prodData as Product[]) || []);
       setLoading(false);
     };
-    if (id) fetch();
+    if (id) fetchData();
   }, [id]);
 
   return (

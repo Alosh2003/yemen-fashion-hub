@@ -1,20 +1,26 @@
 import { ShoppingCart, Search, User, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
+
+type NavCategory = { name: string; slug: string };
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { totalItems } = useCart();
+  const [categories, setCategories] = useState<NavCategory[]>([]);
+
+  useEffect(() => {
+    supabase.from("categories").select("name, slug").eq("is_active", true).order("sort_order").then(({ data }) => {
+      setCategories(data || []);
+    });
+  }, []);
 
   const navLinks = [
     { label: "الرئيسية", href: "/" },
-    { label: "رجالي", href: "/category/men" },
-    { label: "نسائي", href: "/category/women" },
-    { label: "أطفال", href: "/category/kids" },
-    { label: "رياضي", href: "/category/sports" },
-    { label: "تقليدي", href: "/category/traditional" },
+    ...categories.map((c) => ({ label: c.name, href: `/category/${c.slug}` })),
     { label: "العروض", href: "/offers" },
   ];
 
