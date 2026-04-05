@@ -35,6 +35,7 @@ const AdminDashboard = () => {
   const renderContent = () => {
     switch (activeTab) {
       case "overview": return <AdminOverview />;
+      case "categories": return <AdminCategories />;
       case "products": return <AdminProducts />;
       case "orders": return <AdminOrders />;
       case "users": return <AdminUsers />;
