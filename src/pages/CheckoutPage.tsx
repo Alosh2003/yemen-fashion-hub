@@ -56,6 +56,22 @@ const CheckoutPage = () => {
 
   const [paymentMethod, setPaymentMethod] = useState("cash_on_delivery");
   const [walletPhone, setWalletPhone] = useState("");
+  const [receiptNumber, setReceiptNumber] = useState("");
+  const [receiptImage, setReceiptImage] = useState<string | null>(null);
+  const [receiptFileName, setReceiptFileName] = useState("");
+
+  const handleReceiptImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "خطأ", description: "حجم الصورة يجب أن يكون أقل من 5 ميجابايت", variant: "destructive" });
+      return;
+    }
+    setReceiptFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => setReceiptImage(reader.result as string);
+    reader.readAsDataURL(file);
+  };
 
   const formatPrice = (price: number) => price.toLocaleString("ar-YE");
   const cityInfo = delivery.city ? getDeliveryInfo(delivery.city) : null;
