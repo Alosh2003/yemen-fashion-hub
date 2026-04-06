@@ -223,7 +223,22 @@ const AdminOrders = () => {
               {selectedOrder.notes && <div className="col-span-2"><span className="text-muted-foreground">ملاحظات:</span> <span className="font-medium">{selectedOrder.notes}</span></div>}
               <div><span className="text-muted-foreground">الدفع:</span> <span className="font-medium">{selectedOrder.payment_method}</span></div>
               <div><span className="text-muted-foreground">التوصيل:</span> <span className="font-medium">{selectedOrder.estimated_delivery_days} أيام</span></div>
+              {selectedOrder.payment_receipt_number && (
+                <div className="col-span-2"><span className="text-muted-foreground">رقم الإشعار:</span> <span className="font-medium text-primary">{selectedOrder.payment_receipt_number}</span></div>
+              )}
             </div>
+
+            {selectedOrder.payment_receipt_image && (
+              <div className="space-y-2">
+                <p className="font-bold text-sm flex items-center gap-2">📋 صورة إشعار الدفع:</p>
+                <img 
+                  src={selectedOrder.payment_receipt_image} 
+                  alt="إشعار الدفع" 
+                  className="w-full max-h-64 object-contain rounded-lg border border-border cursor-pointer"
+                  onClick={() => window.open(selectedOrder.payment_receipt_image!, '_blank')}
+                />
+              </div>
+            )}
 
             <div className="space-y-2">
               <p className="font-bold text-sm">المنتجات:</p>
