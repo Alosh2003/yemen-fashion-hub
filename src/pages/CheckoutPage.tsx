@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
@@ -17,12 +17,12 @@ import {
   CreditCard, Building2, Banknote, Clock, Loader2,
 } from "lucide-react";
 
-const yemeniWallets = [
-  { id: "floosak", name: "فلوسك", icon: "💳", color: "from-blue-500 to-blue-700" },
-  { id: "mahfadati", name: "محفظتي", icon: "📱", color: "from-green-500 to-green-700" },
-  { id: "jawal_cash", name: "جوال كاش", icon: "📲", color: "from-orange-500 to-orange-700" },
-  { id: "cash_on_delivery", name: "الدفع عند الاستلام", icon: "💵", color: "from-yellow-600 to-yellow-800" },
-];
+interface WalletOption {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+}
 
 const yemeniCities = Object.keys(cityDeliveryMap);
 
@@ -36,6 +36,19 @@ const CheckoutPage = () => {
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [placedOrderNumber, setPlacedOrderNumber] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [walletOptions, setWalletOptions] = useState<WalletOption[]>([]);
+
+  useEffect(() => {
+    const fetchWallets = async () => {
+      const { data } = await supabase
+        .from("wallets")
+        .select("id, name, icon, color")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      setWalletOptions((data as WalletOption[]) || []);
+    };
+    fetchWallets();
+  }, []);
 
   const [delivery, setDelivery] = useState({
     fullName: "", phone: "", city: "", area: "", address: "", notes: "",
@@ -167,7 +180,7 @@ const CheckoutPage = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">طريقة الدفع</span>
-                <span>{yemeniWallets.find((w) => w.id === paymentMethod)?.name}</span>
+                <span>{walletOptions.find((w) => w.id === paymentMethod)?.name}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">التوصيل إلى</span>
@@ -302,7 +315,7 @@ const CheckoutPage = () => {
                   <h2 className="text-xl font-bold">طريقة الدفع</h2>
                 </div>
                 <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-3">
-                  {yemeniWallets.map((w) => (
+                  {walletOptions.map((w) => (
                     <label key={w.id} className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === w.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"}`}>
                       <RadioGroupItem value={w.id} />
                       <span className={`text-2xl w-10 h-10 rounded-lg bg-gradient-to-br ${w.color} flex items-center justify-center`}>{w.icon}</span>
@@ -347,9 +360,9 @@ const CheckoutPage = () => {
                     <button onClick={() => setStep("payment")} className="text-xs text-primary hover:underline">تعديل</button>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">{yemeniWallets.find((w) => w.id === paymentMethod)?.icon}</span>
+                    <span className="text-2xl">{walletOptions.find((w) => w.id === paymentMethod)?.icon}</span>
                     <div>
-                      <p className="font-medium">{yemeniWallets.find((w) => w.id === paymentMethod)?.name}</p>
+                      <p className="font-medium">{walletOptions.find((w) => w.id === paymentMethod)?.name}</p>
                       {walletPhone && <p className="text-sm text-muted-foreground">{walletPhone}</p>}
                     </div>
                   </div>

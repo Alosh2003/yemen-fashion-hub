@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   LayoutDashboard, Package, Users, Headphones, ShoppingBag,
-  Settings, ChevronLeft, ChevronRight, LogOut, TrendingUp, FolderOpen
+  Settings, ChevronLeft, ChevronRight, LogOut, TrendingUp, FolderOpen, Wallet
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,7 @@ import AdminOrders from "@/components/admin/AdminOrders";
 import AdminUsers from "@/components/admin/AdminUsers";
 import AdminSupport from "@/components/admin/AdminSupport";
 import AdminCategories from "@/components/admin/AdminCategories";
+import AdminWallets from "@/components/admin/AdminWallets";
 
 const tabs = [
   { id: "overview", label: "نظرة عامة", icon: LayoutDashboard },
@@ -18,6 +19,7 @@ const tabs = [
   { id: "products", label: "المنتجات", icon: Package },
   { id: "orders", label: "الطلبات", icon: ShoppingBag },
   { id: "users", label: "المستخدمون", icon: Users },
+  { id: "wallets", label: "المحافظ", icon: Wallet },
   { id: "support", label: "الدعم الفني", icon: Headphones },
 ];
 
@@ -36,6 +38,7 @@ const AdminDashboard = () => {
     switch (activeTab) {
       case "overview": return <AdminOverview />;
       case "categories": return <AdminCategories />;
+      case "wallets": return <AdminWallets />;
       case "products": return <AdminProducts />;
       case "orders": return <AdminOrders />;
       case "users": return <AdminUsers />;
