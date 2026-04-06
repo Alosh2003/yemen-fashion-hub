@@ -117,6 +117,8 @@ const CheckoutPage = () => {
           user_id: user.id,
           payment_method: paymentMethod,
           wallet_phone: paymentMethod !== "cash_on_delivery" ? walletPhone : null,
+          payment_receipt_number: paymentMethod !== "cash_on_delivery" ? (receiptNumber || null) : null,
+          payment_receipt_image: paymentMethod !== "cash_on_delivery" ? (receiptImage || null) : null,
           customer_name: delivery.fullName,
           customer_phone: delivery.phone,
           city: delivery.city,
