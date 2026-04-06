@@ -14,7 +14,7 @@ import { toast } from "@/hooks/use-toast";
 import { getDeliveryInfo, getDeliveryFee, cityDeliveryMap } from "@/data/deliveryEstimates";
 import {
   MapPin, Phone, User, Wallet, Truck, ShieldCheck, CheckCircle2,
-  CreditCard, Building2, Banknote, Clock, Loader2,
+  CreditCard, Building2, Banknote, Clock, Loader2, Upload, FileText, Image,
 } from "lucide-react";
 
 interface WalletOption {
