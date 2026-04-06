@@ -23,6 +23,8 @@ type Order = {
   total: number;
   estimated_delivery_days: number;
   created_at: string;
+  payment_receipt_number: string | null;
+  payment_receipt_image: string | null;
 };
 
 type OrderItem = {
