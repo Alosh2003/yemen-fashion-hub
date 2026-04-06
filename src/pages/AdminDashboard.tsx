@@ -11,6 +11,7 @@ import AdminOrders from "@/components/admin/AdminOrders";
 import AdminUsers from "@/components/admin/AdminUsers";
 import AdminSupport from "@/components/admin/AdminSupport";
 import AdminCategories from "@/components/admin/AdminCategories";
+import AdminWallets from "@/components/admin/AdminWallets";
 
 const tabs = [
   { id: "overview", label: "نظرة عامة", icon: LayoutDashboard },
