@@ -36,6 +36,19 @@ const CheckoutPage = () => {
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [placedOrderNumber, setPlacedOrderNumber] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [walletOptions, setWalletOptions] = useState<WalletOption[]>([]);
+
+  useEffect(() => {
+    const fetchWallets = async () => {
+      const { data } = await supabase
+        .from("wallets")
+        .select("id, name, icon, color")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      setWalletOptions((data as WalletOption[]) || []);
+    };
+    fetchWallets();
+  }, []);
 
   const [delivery, setDelivery] = useState({
     fullName: "", phone: "", city: "", area: "", address: "", notes: "",
