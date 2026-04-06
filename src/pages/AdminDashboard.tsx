@@ -38,6 +38,7 @@ const AdminDashboard = () => {
     switch (activeTab) {
       case "overview": return <AdminOverview />;
       case "categories": return <AdminCategories />;
+      case "wallets": return <AdminWallets />;
       case "products": return <AdminProducts />;
       case "orders": return <AdminOrders />;
       case "users": return <AdminUsers />;
