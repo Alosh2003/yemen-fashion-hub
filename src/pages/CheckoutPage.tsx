@@ -14,7 +14,7 @@ import { toast } from "@/hooks/use-toast";
 import { getDeliveryInfo, getDeliveryFee, cityDeliveryMap } from "@/data/deliveryEstimates";
 import {
   MapPin, Phone, User, Wallet, Truck, ShieldCheck, CheckCircle2,
-  CreditCard, Building2, Banknote, Clock, Loader2,
+  CreditCard, Building2, Banknote, Clock, Loader2, Upload, FileText, Image,
 } from "lucide-react";
 
 interface WalletOption {
@@ -56,6 +56,22 @@ const CheckoutPage = () => {
 
   const [paymentMethod, setPaymentMethod] = useState("cash_on_delivery");
   const [walletPhone, setWalletPhone] = useState("");
+  const [receiptNumber, setReceiptNumber] = useState("");
+  const [receiptImage, setReceiptImage] = useState<string | null>(null);
+  const [receiptFileName, setReceiptFileName] = useState("");
+
+  const handleReceiptImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "خطأ", description: "حجم الصورة يجب أن يكون أقل من 5 ميجابايت", variant: "destructive" });
+      return;
+    }
+    setReceiptFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => setReceiptImage(reader.result as string);
+    reader.readAsDataURL(file);
+  };
 
   const formatPrice = (price: number) => price.toLocaleString("ar-YE");
   const cityInfo = delivery.city ? getDeliveryInfo(delivery.city) : null;
@@ -101,6 +117,8 @@ const CheckoutPage = () => {
           user_id: user.id,
           payment_method: paymentMethod,
           wallet_phone: paymentMethod !== "cash_on_delivery" ? walletPhone : null,
+          payment_receipt_number: paymentMethod !== "cash_on_delivery" ? (receiptNumber || null) : null,
+          payment_receipt_image: paymentMethod !== "cash_on_delivery" ? (receiptImage || null) : null,
           customer_name: delivery.fullName,
           customer_phone: delivery.phone,
           city: delivery.city,
@@ -324,10 +342,32 @@ const CheckoutPage = () => {
                   ))}
                 </RadioGroup>
                 {paymentMethod !== "cash_on_delivery" && (
-                  <div className="space-y-2 p-4 bg-secondary/50 rounded-xl">
-                    <Label className="flex items-center gap-2"><Phone className="w-4 h-4" /> رقم المحفظة</Label>
-                    <Input value={walletPhone} onChange={(e) => setWalletPhone(e.target.value)} placeholder="أدخل رقم المحفظة" dir="ltr" className="text-right" />
-                    <p className="text-xs text-muted-foreground">سيتم إرسال طلب الدفع إلى هذا الرقم بعد تأكيد الطلب</p>
+                  <div className="space-y-4 p-4 bg-secondary/50 rounded-xl">
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2"><Phone className="w-4 h-4" /> رقم المحفظة</Label>
+                      <Input value={walletPhone} onChange={(e) => setWalletPhone(e.target.value)} placeholder="أدخل رقم المحفظة" dir="ltr" className="text-right" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2"><FileText className="w-4 h-4" /> رقم إشعار الدفع</Label>
+                      <Input value={receiptNumber} onChange={(e) => setReceiptNumber(e.target.value)} placeholder="أدخل رقم إشعار التحويل" className="text-right" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2"><Image className="w-4 h-4" /> صورة إشعار الدفع</Label>
+                      <div className="relative">
+                        <input type="file" accept="image/*" onChange={handleReceiptImage} className="hidden" id="receipt-upload" />
+                        <label htmlFor="receipt-upload" className="flex items-center gap-3 p-3 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary/50 transition-colors">
+                          <Upload className="w-5 h-5 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">{receiptFileName || "اضغط لرفع صورة الإشعار"}</span>
+                        </label>
+                      </div>
+                      {receiptImage && (
+                        <div className="relative mt-2">
+                          <img src={receiptImage} alt="إشعار الدفع" className="w-full max-h-48 object-contain rounded-lg border border-border" />
+                          <button onClick={() => { setReceiptImage(null); setReceiptFileName(""); }} className="absolute top-1 left-1 bg-destructive text-destructive-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs">✕</button>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">أرفق رقم الإشعار أو صورته لتسريع تأكيد طلبك</p>
                   </div>
                 )}
                 <div className="flex gap-3">
