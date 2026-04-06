@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   LayoutDashboard, Package, Users, Headphones, ShoppingBag,
-  Settings, ChevronLeft, ChevronRight, LogOut, TrendingUp, FolderOpen
+  Settings, ChevronLeft, ChevronRight, LogOut, TrendingUp, FolderOpen, Wallet
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
