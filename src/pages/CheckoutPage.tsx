@@ -17,12 +17,12 @@ import {
   CreditCard, Building2, Banknote, Clock, Loader2,
 } from "lucide-react";
 
-const yemeniWallets = [
-  { id: "floosak", name: "فلوسك", icon: "💳", color: "from-blue-500 to-blue-700" },
-  { id: "mahfadati", name: "محفظتي", icon: "📱", color: "from-green-500 to-green-700" },
-  { id: "jawal_cash", name: "جوال كاش", icon: "📲", color: "from-orange-500 to-orange-700" },
-  { id: "cash_on_delivery", name: "الدفع عند الاستلام", icon: "💵", color: "from-yellow-600 to-yellow-800" },
-];
+interface WalletOption {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+}
 
 const yemeniCities = Object.keys(cityDeliveryMap);
 
