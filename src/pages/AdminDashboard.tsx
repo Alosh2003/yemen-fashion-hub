@@ -19,6 +19,7 @@ const tabs = [
   { id: "products", label: "المنتجات", icon: Package },
   { id: "orders", label: "الطلبات", icon: ShoppingBag },
   { id: "users", label: "المستخدمون", icon: Users },
+  { id: "wallets", label: "المحافظ", icon: Wallet },
   { id: "support", label: "الدعم الفني", icon: Headphones },
 ];
 
