@@ -342,10 +342,32 @@ const CheckoutPage = () => {
                   ))}
                 </RadioGroup>
                 {paymentMethod !== "cash_on_delivery" && (
-                  <div className="space-y-2 p-4 bg-secondary/50 rounded-xl">
-                    <Label className="flex items-center gap-2"><Phone className="w-4 h-4" /> رقم المحفظة</Label>
-                    <Input value={walletPhone} onChange={(e) => setWalletPhone(e.target.value)} placeholder="أدخل رقم المحفظة" dir="ltr" className="text-right" />
-                    <p className="text-xs text-muted-foreground">سيتم إرسال طلب الدفع إلى هذا الرقم بعد تأكيد الطلب</p>
+                  <div className="space-y-4 p-4 bg-secondary/50 rounded-xl">
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2"><Phone className="w-4 h-4" /> رقم المحفظة</Label>
+                      <Input value={walletPhone} onChange={(e) => setWalletPhone(e.target.value)} placeholder="أدخل رقم المحفظة" dir="ltr" className="text-right" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2"><FileText className="w-4 h-4" /> رقم إشعار الدفع</Label>
+                      <Input value={receiptNumber} onChange={(e) => setReceiptNumber(e.target.value)} placeholder="أدخل رقم إشعار التحويل" className="text-right" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2"><Image className="w-4 h-4" /> صورة إشعار الدفع</Label>
+                      <div className="relative">
+                        <input type="file" accept="image/*" onChange={handleReceiptImage} className="hidden" id="receipt-upload" />
+                        <label htmlFor="receipt-upload" className="flex items-center gap-3 p-3 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary/50 transition-colors">
+                          <Upload className="w-5 h-5 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">{receiptFileName || "اضغط لرفع صورة الإشعار"}</span>
+                        </label>
+                      </div>
+                      {receiptImage && (
+                        <div className="relative mt-2">
+                          <img src={receiptImage} alt="إشعار الدفع" className="w-full max-h-48 object-contain rounded-lg border border-border" />
+                          <button onClick={() => { setReceiptImage(null); setReceiptFileName(""); }} className="absolute top-1 left-1 bg-destructive text-destructive-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs">✕</button>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">أرفق رقم الإشعار أو صورته لتسريع تأكيد طلبك</p>
                   </div>
                 )}
                 <div className="flex gap-3">
