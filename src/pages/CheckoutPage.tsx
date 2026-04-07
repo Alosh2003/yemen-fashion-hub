@@ -422,9 +422,9 @@ const CheckoutPage = () => {
                     <button onClick={() => setStep("payment")} className="text-xs text-primary hover:underline">تعديل</button>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">{walletOptions.find((w) => w.id === paymentMethod)?.icon}</span>
+                    <span className="text-2xl">{paymentMethod === "cash_on_delivery" ? "💵" : walletOptions.find((w) => w.id === paymentMethod)?.icon}</span>
                     <div>
-                      <p className="font-medium">{walletOptions.find((w) => w.id === paymentMethod)?.name}</p>
+                      <p className="font-medium">{paymentMethod === "cash_on_delivery" ? "الدفع عند الاستلام" : walletOptions.find((w) => w.id === paymentMethod)?.name}</p>
                       {walletPhone && <p className="text-sm text-muted-foreground">{walletPhone}</p>}
                     </div>
                   </div>
