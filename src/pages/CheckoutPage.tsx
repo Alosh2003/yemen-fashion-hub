@@ -22,6 +22,7 @@ interface WalletOption {
   name: string;
   icon: string;
   color: string;
+  phone_number: string | null;
 }
 
 const yemeniCities = Object.keys(cityDeliveryMap);
