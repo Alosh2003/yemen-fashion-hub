@@ -22,6 +22,7 @@ interface WalletOption {
   name: string;
   icon: string;
   color: string;
+  phone_number: string | null;
 }
 
 const yemeniCities = Object.keys(cityDeliveryMap);
@@ -42,7 +43,7 @@ const CheckoutPage = () => {
     const fetchWallets = async () => {
       const { data } = await supabase
         .from("wallets")
-        .select("id, name, icon, color")
+        .select("id, name, icon, color, phone_number")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
       setWalletOptions((data as WalletOption[]) || []);
@@ -91,9 +92,15 @@ const CheckoutPage = () => {
   };
 
   const validatePayment = () => {
-    if (paymentMethod !== "cash_on_delivery" && !walletPhone) {
-      toast({ title: "خطأ", description: "يرجى إدخال رقم المحفظة", variant: "destructive" });
-      return false;
+    if (paymentMethod !== "cash_on_delivery") {
+      if (!walletPhone) {
+        toast({ title: "خطأ", description: "لم يتم تحديد رقم المحفظة، تأكد من اختيار محفظة صحيحة", variant: "destructive" });
+        return false;
+      }
+      if (!receiptNumber && !receiptImage) {
+        toast({ title: "خطأ", description: "يرجى إدخال رقم إشعار الدفع أو إرفاق صورة الإشعار", variant: "destructive" });
+        return false;
+      }
     }
     return true;
   };
@@ -196,10 +203,10 @@ const CheckoutPage = () => {
                 <span className="text-muted-foreground">رقم الطلب</span>
                 <span className="font-bold text-primary">{placedOrderNumber}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">طريقة الدفع</span>
-                <span>{walletOptions.find((w) => w.id === paymentMethod)?.name}</span>
-              </div>
+               <div className="flex justify-between">
+                 <span className="text-muted-foreground">طريقة الدفع</span>
+                 <span>{paymentMethod === "cash_on_delivery" ? "الدفع عند الاستلام" : walletOptions.find((w) => w.id === paymentMethod)?.name}</span>
+               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">التوصيل إلى</span>
                 <span>{delivery.city} - {delivery.area}</span>
@@ -332,20 +339,41 @@ const CheckoutPage = () => {
                   <CreditCard className="w-6 h-6 text-primary" />
                   <h2 className="text-xl font-bold">طريقة الدفع</h2>
                 </div>
-                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-3">
+                <RadioGroup value={paymentMethod} onValueChange={(val) => {
+                  setPaymentMethod(val);
+                  if (val === "cash_on_delivery") {
+                    setWalletPhone("");
+                    setReceiptNumber("");
+                    setReceiptImage(null);
+                    setReceiptFileName("");
+                  } else {
+                    const selectedWallet = walletOptions.find((w) => w.id === val);
+                    setWalletPhone(selectedWallet?.phone_number || "");
+                  }
+                }} className="space-y-3">
+                  {/* الدفع عند الاستلام */}
+                  <label className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === "cash_on_delivery" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"}`}>
+                    <RadioGroupItem value="cash_on_delivery" />
+                    <span className="text-2xl w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">💵</span>
+                    <span className="font-bold text-foreground">الدفع عند الاستلام</span>
+                  </label>
+                  {/* المحافظ الإلكترونية */}
                   {walletOptions.map((w) => (
                     <label key={w.id} className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === w.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"}`}>
                       <RadioGroupItem value={w.id} />
                       <span className={`text-2xl w-10 h-10 rounded-lg bg-gradient-to-br ${w.color} flex items-center justify-center`}>{w.icon}</span>
-                      <span className="font-bold text-foreground">{w.name}</span>
+                      <div>
+                        <span className="font-bold text-foreground">{w.name}</span>
+                        {w.phone_number && <p className="text-xs text-muted-foreground mt-0.5">رقم المحفظة: {w.phone_number}</p>}
+                      </div>
                     </label>
                   ))}
                 </RadioGroup>
                 {paymentMethod !== "cash_on_delivery" && (
                   <div className="space-y-4 p-4 bg-secondary/50 rounded-xl">
                     <div className="space-y-2">
-                      <Label className="flex items-center gap-2"><Phone className="w-4 h-4" /> رقم المحفظة</Label>
-                      <Input value={walletPhone} onChange={(e) => setWalletPhone(e.target.value)} placeholder="أدخل رقم المحفظة" dir="ltr" className="text-right" />
+                      <Label className="flex items-center gap-2"><Phone className="w-4 h-4" /> رقم المحفظة (للتحويل إليه)</Label>
+                      <Input value={walletPhone} readOnly className="text-right bg-muted" dir="ltr" />
                     </div>
                     <div className="space-y-2">
                       <Label className="flex items-center gap-2"><FileText className="w-4 h-4" /> رقم إشعار الدفع</Label>
@@ -400,9 +428,9 @@ const CheckoutPage = () => {
                     <button onClick={() => setStep("payment")} className="text-xs text-primary hover:underline">تعديل</button>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">{walletOptions.find((w) => w.id === paymentMethod)?.icon}</span>
+                    <span className="text-2xl">{paymentMethod === "cash_on_delivery" ? "💵" : walletOptions.find((w) => w.id === paymentMethod)?.icon}</span>
                     <div>
-                      <p className="font-medium">{walletOptions.find((w) => w.id === paymentMethod)?.name}</p>
+                      <p className="font-medium">{paymentMethod === "cash_on_delivery" ? "الدفع عند الاستلام" : walletOptions.find((w) => w.id === paymentMethod)?.name}</p>
                       {walletPhone && <p className="text-sm text-muted-foreground">{walletPhone}</p>}
                     </div>
                   </div>
