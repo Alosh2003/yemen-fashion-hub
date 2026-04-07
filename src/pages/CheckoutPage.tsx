@@ -333,12 +333,33 @@ const CheckoutPage = () => {
                   <CreditCard className="w-6 h-6 text-primary" />
                   <h2 className="text-xl font-bold">طريقة الدفع</h2>
                 </div>
-                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-3">
+                <RadioGroup value={paymentMethod} onValueChange={(val) => {
+                  setPaymentMethod(val);
+                  if (val === "cash_on_delivery") {
+                    setWalletPhone("");
+                    setReceiptNumber("");
+                    setReceiptImage(null);
+                    setReceiptFileName("");
+                  } else {
+                    const selectedWallet = walletOptions.find((w) => w.id === val);
+                    setWalletPhone(selectedWallet?.phone_number || "");
+                  }
+                }} className="space-y-3">
+                  {/* الدفع عند الاستلام */}
+                  <label className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === "cash_on_delivery" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"}`}>
+                    <RadioGroupItem value="cash_on_delivery" />
+                    <span className="text-2xl w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">💵</span>
+                    <span className="font-bold text-foreground">الدفع عند الاستلام</span>
+                  </label>
+                  {/* المحافظ الإلكترونية */}
                   {walletOptions.map((w) => (
                     <label key={w.id} className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === w.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"}`}>
                       <RadioGroupItem value={w.id} />
                       <span className={`text-2xl w-10 h-10 rounded-lg bg-gradient-to-br ${w.color} flex items-center justify-center`}>{w.icon}</span>
-                      <span className="font-bold text-foreground">{w.name}</span>
+                      <div>
+                        <span className="font-bold text-foreground">{w.name}</span>
+                        {w.phone_number && <p className="text-xs text-muted-foreground mt-0.5">رقم المحفظة: {w.phone_number}</p>}
+                      </div>
                     </label>
                   ))}
                 </RadioGroup>
