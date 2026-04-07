@@ -92,9 +92,15 @@ const CheckoutPage = () => {
   };
 
   const validatePayment = () => {
-    if (paymentMethod !== "cash_on_delivery" && !walletPhone) {
-      toast({ title: "خطأ", description: "يرجى إدخال رقم المحفظة", variant: "destructive" });
-      return false;
+    if (paymentMethod !== "cash_on_delivery") {
+      if (!walletPhone) {
+        toast({ title: "خطأ", description: "لم يتم تحديد رقم المحفظة، تأكد من اختيار محفظة صحيحة", variant: "destructive" });
+        return false;
+      }
+      if (!receiptNumber && !receiptImage) {
+        toast({ title: "خطأ", description: "يرجى إدخال رقم إشعار الدفع أو إرفاق صورة الإشعار", variant: "destructive" });
+        return false;
+      }
     }
     return true;
   };
