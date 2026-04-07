@@ -147,13 +147,7 @@ const AdminCategories = () => {
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1 block">رابط الصورة</label>
-              <Input
-                value={form.image || ""}
-                onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
-                placeholder="https://..."
-                dir="ltr"
-              />
+              <ImageUpload value={form.image || null} onChange={(val) => setForm((f) => ({ ...f, image: val }))} label="صورة الفئة" maxSizeMB={2} />
             </div>
             <div>
               <label className="text-sm font-medium mb-1 block">الترتيب</label>

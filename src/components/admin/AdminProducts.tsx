@@ -174,8 +174,7 @@ const AdminProducts = () => {
                 <Input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: Number(e.target.value) })} />
               </div>
               <div className="space-y-2 md:col-span-2">
-                <label className="text-xs text-muted-foreground">رابط الصورة</label>
-                <Input value={form.image || ""} onChange={(e) => setForm({ ...form, image: e.target.value })} placeholder="https://..." />
+                <ImageUpload value={form.image || null} onChange={(val) => setForm({ ...form, image: val || "" })} label="صورة المنتج" maxSizeMB={2} />
               </div>
               <div className="space-y-2">
                 <label className="text-xs text-muted-foreground">المقاسات (مفصولة بفواصل)</label>
