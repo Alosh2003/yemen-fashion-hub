@@ -197,10 +197,10 @@ const CheckoutPage = () => {
                 <span className="text-muted-foreground">رقم الطلب</span>
                 <span className="font-bold text-primary">{placedOrderNumber}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">طريقة الدفع</span>
-                <span>{walletOptions.find((w) => w.id === paymentMethod)?.name}</span>
-              </div>
+               <div className="flex justify-between">
+                 <span className="text-muted-foreground">طريقة الدفع</span>
+                 <span>{paymentMethod === "cash_on_delivery" ? "الدفع عند الاستلام" : walletOptions.find((w) => w.id === paymentMethod)?.name}</span>
+               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">التوصيل إلى</span>
                 <span>{delivery.city} - {delivery.area}</span>
