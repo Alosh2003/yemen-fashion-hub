@@ -43,7 +43,7 @@ const CheckoutPage = () => {
     const fetchWallets = async () => {
       const { data } = await supabase
         .from("wallets")
-        .select("id, name, icon, color")
+        .select("id, name, icon, color, phone_number")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
       setWalletOptions((data as WalletOption[]) || []);
