@@ -366,8 +366,8 @@ const CheckoutPage = () => {
                 {paymentMethod !== "cash_on_delivery" && (
                   <div className="space-y-4 p-4 bg-secondary/50 rounded-xl">
                     <div className="space-y-2">
-                      <Label className="flex items-center gap-2"><Phone className="w-4 h-4" /> رقم المحفظة</Label>
-                      <Input value={walletPhone} onChange={(e) => setWalletPhone(e.target.value)} placeholder="أدخل رقم المحفظة" dir="ltr" className="text-right" />
+                      <Label className="flex items-center gap-2"><Phone className="w-4 h-4" /> رقم المحفظة (للتحويل إليه)</Label>
+                      <Input value={walletPhone} readOnly className="text-right bg-muted" dir="ltr" />
                     </div>
                     <div className="space-y-2">
                       <Label className="flex items-center gap-2"><FileText className="w-4 h-4" /> رقم إشعار الدفع</Label>
