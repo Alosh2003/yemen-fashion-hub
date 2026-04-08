@@ -234,7 +234,7 @@ const AdminProducts = () => {
                 <tr key={p.id} className="border-b border-border last:border-0 hover:bg-secondary/50">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
-                      {p.image && <img src={p.image} alt={p.name} className="w-10 h-10 rounded-lg object-cover" />}
+                      {(p.images?.[0] || p.image) && <img src={p.images?.[0] || p.image!} alt={p.name} className="w-10 h-10 rounded-lg object-cover" />}
                       <div>
                         <span className="font-medium">{p.name}</span>
                         {p.badge && <span className="mr-2 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">{p.badge}</span>}
