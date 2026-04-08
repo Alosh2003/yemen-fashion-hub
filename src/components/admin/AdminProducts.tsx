@@ -88,6 +88,7 @@ const AdminProducts = () => {
     setSaving(true);
     const payload = {
       ...form,
+      image: form.images?.[0] || form.image || null,
       sizes: sizesInput.split(",").map((s) => s.trim()).filter(Boolean),
       colors: colorsInput.split(",").map((s) => s.trim()).filter(Boolean),
       updated_at: new Date().toISOString(),
