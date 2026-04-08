@@ -4,6 +4,7 @@ export type Product = {
   price: number;
   original_price?: number | null;
   image: string | null;
+  images?: string[] | null;
   category: string;
   subcategory: string;
   sizes: string[];
