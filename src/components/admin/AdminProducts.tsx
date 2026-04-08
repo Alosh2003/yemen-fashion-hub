@@ -26,7 +26,7 @@ type Product = {
 };
 
 const emptyProduct: Omit<Product, "id"> = {
-  name: "", price: 0, original_price: null, image: "", category: "", subcategory: "",
+  name: "", price: 0, original_price: null, image: "", images: [], category: "", subcategory: "",
   sizes: [], colors: [], badge: null, rating: 0, reviews: 0, stock: 0, is_active: true, description: null,
 };
 
