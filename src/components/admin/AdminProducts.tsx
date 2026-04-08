@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import ImageUpload from "@/components/ui/image-upload";
+import MultiImageUpload from "@/components/ui/multi-image-upload";
 
 type Product = {
   id: string;
@@ -12,6 +12,7 @@ type Product = {
   price: number;
   original_price: number | null;
   image: string | null;
+  images: string[];
   category: string;
   subcategory: string;
   sizes: string[];
@@ -25,7 +26,7 @@ type Product = {
 };
 
 const emptyProduct: Omit<Product, "id"> = {
-  name: "", price: 0, original_price: null, image: "", category: "", subcategory: "",
+  name: "", price: 0, original_price: null, image: "", images: [], category: "", subcategory: "",
   sizes: [], colors: [], badge: null, rating: 0, reviews: 0, stock: 0, is_active: true, description: null,
 };
 
@@ -87,6 +88,7 @@ const AdminProducts = () => {
     setSaving(true);
     const payload = {
       ...form,
+      image: form.images?.[0] || form.image || null,
       sizes: sizesInput.split(",").map((s) => s.trim()).filter(Boolean),
       colors: colorsInput.split(",").map((s) => s.trim()).filter(Boolean),
       updated_at: new Date().toISOString(),
@@ -174,7 +176,7 @@ const AdminProducts = () => {
                 <Input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: Number(e.target.value) })} />
               </div>
               <div className="space-y-2 md:col-span-2">
-                <ImageUpload value={form.image || null} onChange={(val) => setForm({ ...form, image: val || "" })} label="صورة المنتج" maxSizeMB={2} />
+                <MultiImageUpload value={form.images || []} onChange={(val) => setForm({ ...form, images: val, image: val[0] || "" })} label="صور المنتج" maxSizeMB={2} maxImages={6} />
               </div>
               <div className="space-y-2">
                 <label className="text-xs text-muted-foreground">المقاسات (مفصولة بفواصل)</label>
@@ -232,7 +234,7 @@ const AdminProducts = () => {
                 <tr key={p.id} className="border-b border-border last:border-0 hover:bg-secondary/50">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
-                      {p.image && <img src={p.image} alt={p.name} className="w-10 h-10 rounded-lg object-cover" />}
+                      {(p.images?.[0] || p.image) && <img src={p.images?.[0] || p.image!} alt={p.name} className="w-10 h-10 rounded-lg object-cover" />}
                       <div>
                         <span className="font-medium">{p.name}</span>
                         {p.badge && <span className="mr-2 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">{p.badge}</span>}
