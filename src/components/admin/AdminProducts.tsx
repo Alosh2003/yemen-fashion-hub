@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import ImageUpload from "@/components/ui/image-upload";
+import MultiImageUpload from "@/components/ui/multi-image-upload";
 
 type Product = {
   id: string;
