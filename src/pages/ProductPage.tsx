@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { Product } from "@/data/products";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
-import { Star, ShoppingCart, Truck, Shield, RotateCcw, Minus, Plus, Loader2 } from "lucide-react";
+import { Star, ShoppingCart, Truck, Shield, RotateCcw, Minus, Plus, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
@@ -17,6 +17,7 @@ const ProductPage = () => {
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [qty, setQty] = useState(1);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     const fetch = async () => {
@@ -47,6 +48,11 @@ const ProductPage = () => {
     );
   }
 
+  // Build images array from both fields
+  const allImages = (product.images && product.images.length > 0)
+    ? product.images
+    : product.image ? [product.image] : ["/placeholder.svg"];
+
   const handleAdd = () => {
     const size = selectedSize || product.sizes?.[0] || "";
     const color = selectedColor || product.colors?.[0] || "";
@@ -56,13 +62,45 @@ const ProductPage = () => {
 
   const formatPrice = (price: number) => price.toLocaleString("ar-YE");
 
+  const nextImage = () => setCurrentImageIndex((prev) => (prev + 1) % allImages.length);
+  const prevImage = () => setCurrentImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
+
   return (
     <div className="min-h-screen">
       <Navbar />
       <div className="container mx-auto px-4 py-10">
         <div className="grid md:grid-cols-2 gap-10">
-          <div className="rounded-2xl overflow-hidden aspect-square bg-card border border-border">
-            <img src={product.image || "/placeholder.svg"} alt={product.name} className="w-full h-full object-cover" />
+          {/* Image carousel */}
+          <div className="space-y-3">
+            <div className="relative rounded-2xl overflow-hidden aspect-square bg-card border border-border">
+              <img src={allImages[currentImageIndex]} alt={product.name} className="w-full h-full object-cover" />
+              {allImages.length > 1 && (
+                <>
+                  <button onClick={prevImage} className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur rounded-full p-2 hover:bg-background transition-colors">
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                  <button onClick={nextImage} className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur rounded-full p-2 hover:bg-background transition-colors">
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                    {allImages.map((_, i) => (
+                      <button key={i} onClick={() => setCurrentImageIndex(i)}
+                        className={`w-2 h-2 rounded-full transition-colors ${i === currentImageIndex ? "bg-primary" : "bg-background/60"}`} />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+            {allImages.length > 1 && (
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {allImages.map((img, i) => (
+                  <button key={i} onClick={() => setCurrentImageIndex(i)}
+                    className={`w-16 h-16 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-colors ${i === currentImageIndex ? "border-primary" : "border-border"}`}>
+                    <img src={img} alt={`صورة ${i + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="space-y-6">
@@ -136,6 +174,9 @@ const ProductPage = () => {
 
             {product.stock !== undefined && product.stock < 10 && product.stock > 0 && (
               <p className="text-sm text-destructive">⚠️ متبقي {product.stock} قطع فقط!</p>
+            )}
+            {product.stock !== undefined && product.stock === 0 && (
+              <p className="text-sm text-destructive font-bold">❌ نفذ من المخزون</p>
             )}
 
             <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border">
