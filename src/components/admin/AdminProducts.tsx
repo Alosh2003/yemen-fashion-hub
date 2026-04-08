@@ -12,6 +12,7 @@ type Product = {
   price: number;
   original_price: number | null;
   image: string | null;
+  images: string[];
   category: string;
   subcategory: string;
   sizes: string[];
