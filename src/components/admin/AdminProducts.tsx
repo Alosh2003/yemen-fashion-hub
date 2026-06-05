@@ -30,14 +30,7 @@ const emptyProduct: Omit<Product, "id"> = {
   sizes: [], colors: [], badge: null, rating: 0, reviews: 0, stock: 0, is_active: true, description: null,
 };
 
-const categoryOptions = [
-  { value: "men", label: "رجالي" },
-  { value: "women", label: "نسائي" },
-  { value: "kids", label: "أطفال" },
-  { value: "sports", label: "رياضي" },
-  { value: "traditional", label: "تقليدي" },
-  { value: "accessories", label: "إكسسوارات" },
-];
+type CategoryOption = { value: string; label: string };
 
 const AdminProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
