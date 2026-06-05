@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 
 type NavCategory = { name: string; slug: string };
 
@@ -11,6 +12,7 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { totalItems } = useCart();
   const [categories, setCategories] = useState<NavCategory[]>([]);
+  const { settings } = useSiteSettings();
 
   useEffect(() => {
     supabase.from("categories").select("name, slug").eq("is_active", true).order("sort_order").then(({ data }) => {
@@ -30,8 +32,11 @@ const Navbar = () => {
         {/* Top bar */}
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2">
-            <span className="text-2xl font-black gold-text tracking-tight">الحكومة</span>
-            <span className="text-xs text-muted-foreground hidden sm:block">للأزياء</span>
+            {settings.logo_url ? (
+              <img src={settings.logo_url} alt={settings.site_name} className="h-10 w-auto object-contain" />
+            ) : (
+              <span className="text-2xl font-black gold-text tracking-tight">{settings.site_name}</span>
+            )}
           </Link>
 
           {/* Search */}
