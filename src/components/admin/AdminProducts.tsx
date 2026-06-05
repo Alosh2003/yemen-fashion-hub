@@ -45,12 +45,19 @@ const AdminProducts = () => {
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
     const channel = supabase
       .channel("admin-products")
       .on("postgres_changes", { event: "*", schema: "public", table: "products" }, () => fetchProducts())
+      .on("postgres_changes", { event: "*", schema: "public", table: "categories" }, () => fetchCategories())
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, []);
+
+  const fetchCategories = async () => {
+    const { data } = await supabase.from("categories").select("name, slug").eq("is_active", true).order("sort_order");
+    setCategoryOptions((data || []).map((c: any) => ({ value: c.slug, label: c.name })));
+  };
 
   const fetchProducts = async () => {
     const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false });
