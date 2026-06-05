@@ -124,10 +124,9 @@ const AdminSettings = () => {
         <div className="space-y-2">
           <Label>شعار الموقع</Label>
           <ImageUpload
-            value={form.logo_url || ""}
+            value={form.logo_url}
             onChange={(url) => set("logo_url", url)}
-            bucket="categories"
-            folder="logos"
+            label="الشعار"
           />
         </div>
       </div>
