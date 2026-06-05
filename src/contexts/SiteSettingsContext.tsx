@@ -74,14 +74,8 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     fetchSettings();
-    const ch = (supabase as any)
-      .channel("site_settings_changes")
-      .on("postgres_changes", { event: "*", schema: "public", table: "site_settings" }, () => {
-        fetchSettings();
-      })
-      .subscribe();
-    return () => { (supabase as any).removeChannel(ch); };
   }, []);
+
 
   return (
     <SiteSettingsContext.Provider value={{ settings, loading, refresh: fetchSettings }}>
