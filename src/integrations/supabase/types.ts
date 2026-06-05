@@ -309,6 +309,60 @@ export type Database = {
         }
         Relationships: []
       }
+      site_settings: {
+        Row: {
+          accent_color: string | null
+          address: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          facebook_url: string | null
+          id: string
+          instagram_url: string | null
+          logo_url: string | null
+          primary_color: string | null
+          site_name: string
+          tiktok_url: string | null
+          twitter_url: string | null
+          updated_at: string
+          whatsapp_number: string | null
+        }
+        Insert: {
+          accent_color?: string | null
+          address?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          facebook_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          logo_url?: string | null
+          primary_color?: string | null
+          site_name?: string
+          tiktok_url?: string | null
+          twitter_url?: string | null
+          updated_at?: string
+          whatsapp_number?: string | null
+        }
+        Update: {
+          accent_color?: string | null
+          address?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          facebook_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          logo_url?: string | null
+          primary_color?: string | null
+          site_name?: string
+          tiktok_url?: string | null
+          twitter_url?: string | null
+          updated_at?: string
+          whatsapp_number?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string

@@ -12,6 +12,7 @@ import AdminUsers from "@/components/admin/AdminUsers";
 import AdminSupport from "@/components/admin/AdminSupport";
 import AdminCategories from "@/components/admin/AdminCategories";
 import AdminWallets from "@/components/admin/AdminWallets";
+import AdminSettings from "@/components/admin/AdminSettings";
 
 const tabs = [
   { id: "overview", label: "نظرة عامة", icon: LayoutDashboard },
@@ -21,6 +22,7 @@ const tabs = [
   { id: "users", label: "المستخدمون", icon: Users },
   { id: "wallets", label: "المحافظ", icon: Wallet },
   { id: "support", label: "الدعم الفني", icon: Headphones },
+  { id: "settings", label: "إعدادات الموقع", icon: Settings },
 ];
 
 const AdminDashboard = () => {
@@ -43,6 +45,7 @@ const AdminDashboard = () => {
       case "orders": return <AdminOrders />;
       case "users": return <AdminUsers />;
       case "support": return <AdminSupport />;
+      case "settings": return <AdminSettings />;
       default: return <AdminOverview />;
     }
   };
