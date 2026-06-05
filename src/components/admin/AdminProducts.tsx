@@ -30,17 +30,11 @@ const emptyProduct: Omit<Product, "id"> = {
   sizes: [], colors: [], badge: null, rating: 0, reviews: 0, stock: 0, is_active: true, description: null,
 };
 
-const categoryOptions = [
-  { value: "men", label: "رجالي" },
-  { value: "women", label: "نسائي" },
-  { value: "kids", label: "أطفال" },
-  { value: "sports", label: "رياضي" },
-  { value: "traditional", label: "تقليدي" },
-  { value: "accessories", label: "إكسسوارات" },
-];
+type CategoryOption = { value: string; label: string };
 
 const AdminProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categoryOptions, setCategoryOptions] = useState<CategoryOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
@@ -51,12 +45,19 @@ const AdminProducts = () => {
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
     const channel = supabase
       .channel("admin-products")
       .on("postgres_changes", { event: "*", schema: "public", table: "products" }, () => fetchProducts())
+      .on("postgres_changes", { event: "*", schema: "public", table: "categories" }, () => fetchCategories())
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, []);
+
+  const fetchCategories = async () => {
+    const { data } = await supabase.from("categories").select("name, slug").eq("is_active", true).order("sort_order");
+    setCategoryOptions((data || []).map((c: any) => ({ value: c.slug, label: c.name })));
+  };
 
   const fetchProducts = async () => {
     const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false });
