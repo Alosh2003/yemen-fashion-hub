@@ -34,18 +34,19 @@ const CartPage = () => {
                     <p className="text-xs text-muted-foreground mt-1">المقاس: {item.size} | اللون: {item.color}</p>
                     <div className="flex items-center justify-between mt-3">
                       <div className="flex items-center border border-border rounded-lg">
-                        <button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="p-1.5 hover:bg-secondary"><Minus className="w-3 h-3" /></button>
+                        <button onClick={() => updateQuantity(item.product.id, item.quantity - 1, item.size, item.color)} className="p-1.5 hover:bg-secondary"><Minus className="w-3 h-3" /></button>
                         <span className="px-3 text-sm font-bold">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.product.id, item.quantity + 1)} className="p-1.5 hover:bg-secondary"><Plus className="w-3 h-3" /></button>
+                        <button onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.size, item.color)} className="p-1.5 hover:bg-secondary"><Plus className="w-3 h-3" /></button>
                       </div>
                       <span className="font-bold text-primary">{formatPrice(item.product.price * item.quantity)} ر.ي</span>
-                      <button onClick={() => removeItem(item.product.id)} className="p-2 text-destructive hover:bg-destructive/10 rounded-lg">
+                      <button onClick={() => removeItem(item.product.id, item.size, item.color)} className="p-2 text-destructive hover:bg-destructive/10 rounded-lg">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
                 </div>
               ))}
+
             </div>
 
             {/* Summary */}
