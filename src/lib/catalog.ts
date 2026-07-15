@@ -16,11 +16,13 @@ let categoriesRequest: Promise<PublicCategory[]> | null = null;
 
 export const getActiveCategories = () => {
   if (!categoriesRequest) {
-    categoriesRequest = publicSupabase
-      .from("categories")
-      .select("id,name,slug,icon,image,sort_order")
-      .eq("is_active", true)
-      .order("sort_order", { ascending: true })
+    categoriesRequest = Promise.resolve(
+      publicSupabase
+        .from("categories")
+        .select("id,name,slug,icon,image,sort_order")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true })
+    )
       .then(({ data, error }) => {
         if (error) throw error;
         return (data || []) as PublicCategory[];
