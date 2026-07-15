@@ -1,31 +1,32 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Product } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Loader2, Percent, Timer, Flame } from "lucide-react";
+import { getOfferProducts } from "@/lib/catalog";
 
 const OffersPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchOffers = async () => {
-      const { data } = await supabase
-        .from("products")
-        .select("*")
-        .eq("is_active", true)
-        .not("original_price", "is", null)
-        .order("rating", { ascending: false });
+    let mounted = true;
 
-      const offers = (data as Product[] || []).filter(
-        (p) => p.original_price && p.original_price > p.price
-      );
-      setProducts(offers);
-      setLoading(false);
+    const fetchOffers = async () => {
+      try {
+        const offers = await getOfferProducts();
+        if (mounted) setProducts(offers);
+      } catch (error) {
+        console.error("Failed to load offers", error);
+        if (mounted) setProducts([]);
+      } finally {
+        if (mounted) setLoading(false);
+      }
     };
+
     fetchOffers();
+    return () => { mounted = false; };
   }, []);
 
   return (

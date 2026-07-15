@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 const ProductCard = ({ product }: { product: Product }) => {
   const { addItem } = useCart();
+  const productImage = product.images?.[0] || product.image || "/placeholder.svg";
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -20,8 +21,9 @@ const ProductCard = ({ product }: { product: Product }) => {
       <div className="bg-card rounded-xl overflow-hidden border border-border hover-lift">
         <div className="relative aspect-[3/4] overflow-hidden">
           <img
-            src={product.images?.[0] || product.image || "/placeholder.svg"}
+            src={productImage}
             alt={product.name}
+            loading="lazy"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
           {product.badge && (

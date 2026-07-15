@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Product } from "@/data/products";
-import { supabase } from "@/integrations/supabase/client";
+import { getActiveCategories, getCategoryProducts } from "@/lib/catalog";
 import ProductCard from "@/components/ProductCard";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -16,17 +16,33 @@ const CategoryPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     const fetchData = async () => {
       setLoading(true);
-      const [{ data: catData }, { data: prodData }] = await Promise.all([
-        supabase.from("categories").select("name, icon").eq("slug", id!).maybeSingle(),
-        supabase.from("products").select("*").eq("category", id!).eq("is_active", true).order("created_at", { ascending: false }),
-      ]);
-      setCategory(catData);
-      setProducts((prodData as Product[]) || []);
-      setLoading(false);
+      try {
+        const [cats, prodData] = await Promise.all([
+          getActiveCategories(),
+          getCategoryProducts(id!),
+        ]);
+
+        if (!mounted) return;
+        const catData = cats.find((cat) => cat.slug === id);
+        setCategory(catData ? { name: catData.name, icon: catData.icon } : null);
+        setProducts(prodData);
+      } catch (error) {
+        console.error("Failed to load category page", error);
+        if (mounted) {
+          setCategory(null);
+          setProducts([]);
+        }
+      } finally {
+        if (mounted) setLoading(false);
+      }
     };
     if (id) fetchData();
+
+    return () => { mounted = false; };
   }, [id]);
 
   return (

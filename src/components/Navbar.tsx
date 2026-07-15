@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
+import { getActiveCategories } from "@/lib/catalog";
 
 type NavCategory = { name: string; slug: string };
 
@@ -15,9 +15,18 @@ const Navbar = () => {
   const { settings } = useSiteSettings();
 
   useEffect(() => {
-    supabase.from("categories").select("name, slug").eq("is_active", true).order("sort_order").then(({ data }) => {
-      setCategories(data || []);
-    });
+    let mounted = true;
+
+    getActiveCategories()
+      .then((data) => {
+        if (mounted) setCategories(data.map(({ name, slug }) => ({ name, slug })));
+      })
+      .catch((error) => {
+        console.error("Failed to load navigation categories", error);
+        if (mounted) setCategories([]);
+      });
+
+    return () => { mounted = false; };
   }, []);
 
   const navLinks = [

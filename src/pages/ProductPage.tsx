@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Product } from "@/data/products";
-import { supabase } from "@/integrations/supabase/client";
+import { publicSupabase } from "@/integrations/supabase/publicClient";
 import { useCart } from "@/contexts/CartContext";
 import { Star, ShoppingCart, Truck, Shield, RotateCcw, Minus, Plus, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,12 +20,29 @@ const ProductPage = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase.from("products").select("*").eq("id", id!).single();
-      setProduct(data as Product | null);
-      setLoading(false);
+    let mounted = true;
+
+    const fetchProduct = async () => {
+      try {
+        const { data, error } = await publicSupabase
+          .from("products")
+          .select("*")
+          .eq("id", id!)
+          .eq("is_active", true)
+          .maybeSingle();
+
+        if (error) throw error;
+        if (mounted) setProduct(data as Product | null);
+      } catch (error) {
+        console.error("Failed to load product", error);
+        if (mounted) setProduct(null);
+      } finally {
+        if (mounted) setLoading(false);
+      }
     };
-    if (id) fetch();
+
+    if (id) fetchProduct();
+    return () => { mounted = false; };
   }, [id]);
 
   if (loading) {
@@ -96,7 +113,7 @@ const ProductPage = () => {
                 {allImages.map((img, i) => (
                   <button key={i} onClick={() => setCurrentImageIndex(i)}
                     className={`w-16 h-16 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-colors ${i === currentImageIndex ? "border-primary" : "border-border"}`}>
-                    <img src={img} alt={`صورة ${i + 1}`} className="w-full h-full object-cover" />
+                    <img src={img} alt={`صورة ${i + 1}`} loading="lazy" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
