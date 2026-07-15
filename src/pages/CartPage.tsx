@@ -28,7 +28,7 @@ const CartPage = () => {
             <div className="lg:col-span-2 space-y-4">
               {items.map((item) => (
                 <div key={item.product.id + item.size + item.color} className="bg-card border border-border rounded-xl p-4 flex gap-4">
-                  <img src={item.product.image} alt={item.product.name} className="w-24 h-24 rounded-lg object-cover" />
+                  <img src={item.product.images?.[0] || item.product.image || "/placeholder.svg"} alt={item.product.name} className="w-24 h-24 rounded-lg object-cover" />
                   <div className="flex-1">
                     <h3 className="font-bold text-foreground">{item.product.name}</h3>
                     <p className="text-xs text-muted-foreground mt-1">المقاس: {item.size} | اللون: {item.color}</p>

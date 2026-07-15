@@ -147,7 +147,7 @@ const CheckoutPage = () => {
         order_id: order.id,
         product_id: item.product.id,
         product_name: item.product.name,
-        product_image: item.product.image,
+        product_image: item.product.images?.[0] || item.product.image || null,
         size: item.size,
         color: item.color,
         quantity: item.quantity,

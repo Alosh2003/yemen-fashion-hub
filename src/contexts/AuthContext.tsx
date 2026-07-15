@@ -24,12 +24,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<Database["public"]["Tables"]["profiles"]["Row"] | null>(null);
 
   const fetchUserData = async (userId: string) => {
-    const [{ data: roleData }, { data: profileData }] = await Promise.all([
-      supabase.from("user_roles").select("role").eq("user_id", userId).order("role", { ascending: true }).limit(1).maybeSingle(),
-      supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
-    ]);
-    setRole(roleData?.role ?? "customer");
-    setProfile(profileData);
+    try {
+      const [{ data: roleData }, { data: profileData }] = await Promise.all([
+        supabase.from("user_roles").select("role").eq("user_id", userId).order("role", { ascending: true }).limit(1).maybeSingle(),
+        supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
+      ]);
+      setRole(roleData?.role ?? "customer");
+      setProfile(profileData);
+    } catch (error) {
+      console.error("Failed to load user data", error);
+      setRole("customer");
+      setProfile(null);
+    }
   };
 
   useEffect(() => {
@@ -45,14 +51,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchUserData(session.user.id);
-      }
-      setLoading(false);
-    });
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          fetchUserData(session.user.id);
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to restore session", error);
+        setSession(null);
+        setUser(null);
+        setRole(null);
+        setProfile(null);
+      })
+      .finally(() => setLoading(false));
 
     return () => subscription.unsubscribe();
   }, []);

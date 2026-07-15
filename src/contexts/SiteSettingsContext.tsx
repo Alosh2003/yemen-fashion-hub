@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { publicSupabase } from "@/integrations/supabase/publicClient";
 
 export interface SiteSettings {
   id?: string;
@@ -58,18 +58,25 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchSettings = async () => {
-    const { data } = await (supabase as any)
-      .from("site_settings")
-      .select("*")
-      .order("created_at", { ascending: true })
-      .limit(1)
-      .maybeSingle();
-    if (data) {
-      const merged = { ...defaultSettings, ...data };
+    try {
+      const { data, error } = await publicSupabase
+        .from("site_settings")
+        .select("*")
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      const merged = { ...defaultSettings, ...(data || {}) };
       setSettings(merged);
       applyTheme(merged);
+    } catch (error) {
+      console.error("Failed to load site settings", error);
+      applyTheme(defaultSettings);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {

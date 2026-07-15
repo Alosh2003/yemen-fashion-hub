@@ -1,25 +1,30 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Product } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 import { Loader2 } from "lucide-react";
+import { getFeaturedProducts } from "@/lib/catalog";
 
 const FeaturedProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase
-        .from("products")
-        .select("*")
-        .eq("is_active", true)
-        .order("rating", { ascending: false })
-        .limit(8);
-      setProducts((data as Product[]) || []);
-      setLoading(false);
+    let mounted = true;
+
+    const fetchProducts = async () => {
+      try {
+        const data = await getFeaturedProducts();
+        if (mounted) setProducts(data);
+      } catch (error) {
+        console.error("Failed to load featured products", error);
+        if (mounted) setProducts([]);
+      } finally {
+        if (mounted) setLoading(false);
+      }
     };
-    fetch();
+
+    fetchProducts();
+    return () => { mounted = false; };
   }, []);
 
   return (
