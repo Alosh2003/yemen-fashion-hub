@@ -44,7 +44,8 @@ Deno.serve(async (req) => {
   const report: Record<string, number> = { products: 0, categories: 0, receipts: 0, done: 0 };
   const outOfBudget = () => processed >= budget;
 
-  const { data: products } = await supabase.from("products").select("id,image,images");
+  const only = url.searchParams.get("only");
+  const { data: products } = only && only !== "products" ? { data: [] as any[] } : await supabase.from("products").select("id,image,images");
   for (const p of products ?? []) {
     if ((p.images ?? []).length === 0 && !(p.image ?? "").startsWith("data:image/")) continue;
     if (outOfBudget()) break;
@@ -54,11 +55,12 @@ Deno.serve(async (req) => {
     if (image !== p.image || JSON.stringify(images) !== JSON.stringify((p.images ?? []) as string[])) {
       await supabase.from("products").update({ image, images }).eq("id", p.id);
       report.products++;
+      report.lastId = p.id as unknown as number;
       processed++;
     }
   }
 
-  const { data: cats } = await supabase.from("categories").select("id,image");
+  const { data: cats } = only && only !== "categories" ? { data: [] as any[] } : await supabase.from("categories").select("id,image");
   for (const c of cats ?? []) {
     if (outOfBudget()) break;
     const image = await shrink(c.image);
@@ -69,7 +71,7 @@ Deno.serve(async (req) => {
     }
   }
 
-  const { data: orders } = await supabase.from("orders").select("id,payment_receipt_image").not("payment_receipt_image", "is", null);
+  const { data: orders } = only && only !== "orders" ? { data: [] as any[] } : await supabase.from("orders").select("id,payment_receipt_image").not("payment_receipt_image", "is", null);
   for (const o of orders ?? []) {
     if (outOfBudget()) break;
     const img = await shrink(o.payment_receipt_image);
