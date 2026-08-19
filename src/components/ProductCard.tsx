@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 const ProductCard = ({ product }: { product: Product }) => {
   const { addItem } = useCart();
-  const productImage = product.images?.[0] || product.image || "/placeholder.svg";
+  const productImage = product.image || product.images?.[0] || "/placeholder.svg";
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();

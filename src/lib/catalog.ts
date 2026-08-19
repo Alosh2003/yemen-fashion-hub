@@ -10,7 +10,7 @@ export type PublicCategory = {
   sort_order: number;
 };
 
-const productCardColumns = "id,name,price,original_price,image,images,category,subcategory,sizes,colors,badge,rating,reviews,stock,is_active,description";
+const productCardColumns = "id,name,price,original_price,image,category,subcategory,sizes,colors,badge,rating,reviews,stock,is_active,description";
 
 let categoriesRequest: Promise<PublicCategory[]> | null = null;
 

@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
-import { Upload, X, Image } from "lucide-react";
+import { Upload, X } from "lucide-react";
+import { compressImageFile } from "@/lib/image";
 
 interface ImageUploadProps {
   value: string | null;
@@ -18,9 +19,9 @@ const ImageUpload = ({ value, onChange, label = "صورة", maxSizeMB = 2 }: Ima
       alert(`حجم الصورة يجب أن يكون أقل من ${maxSizeMB} ميجابايت`);
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => onChange(reader.result as string);
-    reader.readAsDataURL(file);
+    compressImageFile(file)
+      .then((dataUrl) => onChange(dataUrl))
+      .catch(() => alert("تعذر معالجة الصورة، حاول مرة أخرى"));
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

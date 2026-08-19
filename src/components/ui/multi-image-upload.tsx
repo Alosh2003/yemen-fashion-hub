@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
-import { Upload, X, Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
+import { compressImageFile } from "@/lib/image";
 
 interface MultiImageUploadProps {
   value: string[];
@@ -22,12 +23,12 @@ const MultiImageUpload = ({ value = [], onChange, label = "صور المنتج",
         alert(`حجم الصورة يجب أن يكون أقل من ${maxSizeMB} ميجابايت`);
         return;
       }
-      const reader = new FileReader();
-      reader.onload = () => {
-        newImages.push(reader.result as string);
-        onChange([...newImages]);
-      };
-      reader.readAsDataURL(file);
+      compressImageFile(file)
+        .then((dataUrl) => {
+          newImages.push(dataUrl);
+          onChange([...newImages]);
+        })
+        .catch(() => alert("تعذر معالجة الصورة، حاول مرة أخرى"));
     });
   };
 
