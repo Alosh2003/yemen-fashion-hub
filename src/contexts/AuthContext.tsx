@@ -59,8 +59,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           fetchUserData(session.user.id);
         }
       })
-      .catch((error) => {
+      .catch(async (error) => {
         console.error("Failed to restore session", error);
+        // Clear any stale/invalid refresh token stored in the browser
+        try {
+          await supabase.auth.signOut({ scope: "local" });
+        } catch {}
         setSession(null);
         setUser(null);
         setRole(null);
