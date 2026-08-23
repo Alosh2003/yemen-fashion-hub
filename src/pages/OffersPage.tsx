@@ -1,33 +1,13 @@
-import { useEffect, useState } from "react";
-import { Product } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Loader2, Percent, Timer, Flame } from "lucide-react";
-import { getOfferProducts } from "@/lib/catalog";
+import { Percent, Timer, Flame } from "lucide-react";
+import { useOfferProducts } from "@/hooks/useCatalog";
+import { ErrorState, ProductGridSkeleton } from "@/components/CatalogStates";
 
 const OffersPage = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const fetchOffers = async () => {
-      try {
-        const offers = await getOfferProducts();
-        if (mounted) setProducts(offers);
-      } catch (error) {
-        console.error("Failed to load offers", error);
-        if (mounted) setProducts([]);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
-
-    fetchOffers();
-    return () => { mounted = false; };
-  }, []);
+  const { data, isLoading, isError, isFetching, refetch } = useOfferProducts();
+  const products = data ?? [];
 
   return (
     <div className="min-h-screen">
@@ -65,10 +45,10 @@ const OffersPage = () => {
 
       {/* Products Grid */}
       <section className="container mx-auto px-4 py-12">
-        {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          </div>
+        {isLoading ? (
+          <ProductGridSkeleton count={8} />
+        ) : isError ? (
+          <ErrorState title="تعذر تحميل العروض" onRetry={() => refetch()} retrying={isFetching} />
         ) : products.length === 0 ? (
           <div className="text-center py-20">
             <Percent className="w-16 h-16 mx-auto text-muted-foreground/30 mb-4" />

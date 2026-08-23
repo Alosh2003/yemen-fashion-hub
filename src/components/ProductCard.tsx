@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Product } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
+import Price from "@/components/Price";
 
 const ProductCard = ({ product }: { product: Product }) => {
   const { addItem } = useCart();
@@ -13,8 +14,6 @@ const ProductCard = ({ product }: { product: Product }) => {
     addItem(product, product.sizes?.[0] || "", product.colors?.[0] || "");
     toast.success(`تمت إضافة "${product.name}" إلى السلة`);
   };
-
-  const formatPrice = (price: number) => price.toLocaleString("ar-YE");
 
   return (
     <Link to={`/product/${product.id}`} className="group block">
@@ -49,10 +48,12 @@ const ProductCard = ({ product }: { product: Product }) => {
             <Star className="w-3.5 h-3.5 fill-primary text-primary" />
             <span className="text-xs text-muted-foreground">{product.rating} ({product.reviews})</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="font-black text-primary">{formatPrice(product.price)} ر.ي</span>
+          <div className="space-y-1">
+            <Price value={product.price} size="sm" />
             {product.original_price && (
-              <span className="text-xs text-muted-foreground line-through">{formatPrice(product.original_price)}</span>
+              <div className="text-[11px] text-muted-foreground line-through">
+                {product.original_price.toLocaleString("ar-YE")}
+              </div>
             )}
           </div>
         </div>
