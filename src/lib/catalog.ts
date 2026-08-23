@@ -61,16 +61,26 @@ export const getFeaturedProducts = async () => {
   return (data || []) as Product[];
 };
 
-export const getCategoryProducts = async (categorySlug: string) => {
-  const { data, error } = await publicSupabase
+export const PRODUCTS_PAGE_SIZE = 12;
+
+export type PagedProducts = { items: Product[]; total: number };
+
+export const getCategoryProducts = async (
+  categorySlug: string,
+  page = 1,
+  pageSize = PRODUCTS_PAGE_SIZE
+): Promise<PagedProducts> => {
+  const from = (page - 1) * pageSize;
+  const { data, error, count } = await publicSupabase
     .from("products")
-    .select(productCardColumns)
+    .select(productCardColumns, { count: "exact" })
     .eq("category", categorySlug)
     .eq("is_active", true)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .range(from, from + pageSize - 1);
 
   if (error) throw error;
-  return (data || []) as Product[];
+  return { items: (data || []) as Product[], total: count ?? 0 };
 };
 
 export const getOfferProducts = async () => {
