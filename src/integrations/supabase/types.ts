@@ -316,11 +316,15 @@ export type Database = {
           contact_email: string | null
           contact_phone: string | null
           created_at: string
+          currency_new_label: string
+          currency_old_label: string
+          currency_rate: number
           facebook_url: string | null
           id: string
           instagram_url: string | null
           logo_url: string | null
           primary_color: string | null
+          show_dual_currency: boolean
           site_name: string
           tiktok_url: string | null
           twitter_url: string | null
@@ -333,11 +337,15 @@ export type Database = {
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          currency_new_label?: string
+          currency_old_label?: string
+          currency_rate?: number
           facebook_url?: string | null
           id?: string
           instagram_url?: string | null
           logo_url?: string | null
           primary_color?: string | null
+          show_dual_currency?: boolean
           site_name?: string
           tiktok_url?: string | null
           twitter_url?: string | null
@@ -350,11 +358,15 @@ export type Database = {
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          currency_new_label?: string
+          currency_old_label?: string
+          currency_rate?: number
           facebook_url?: string | null
           id?: string
           instagram_url?: string | null
           logo_url?: string | null
           primary_color?: string | null
+          show_dual_currency?: boolean
           site_name?: string
           tiktok_url?: string | null
           twitter_url?: string | null
