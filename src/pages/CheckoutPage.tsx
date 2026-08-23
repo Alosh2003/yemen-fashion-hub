@@ -5,6 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Price from "@/components/Price";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -488,9 +489,9 @@ const CheckoutPage = () => {
                 </div>
               )}
             </div>
-            <div className="border-t border-border pt-3 flex justify-between font-black text-lg">
+            <div className="border-t border-border pt-3 flex justify-between items-start font-black text-lg">
               <span>الإجمالي</span>
-              <span className="text-primary">{formatPrice(grandTotal)} ر.ي</span>
+              <Price value={grandTotal} size="md" layout="column" className="items-end text-left" />
             </div>
           </div>
         </div>

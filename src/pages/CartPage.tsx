@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Price from "@/components/Price";
 
 const CartPage = () => {
   const { items, removeItem, updateQuantity, totalPrice, clearCart } = useCart();
@@ -38,7 +39,7 @@ const CartPage = () => {
                         <span className="px-3 text-sm font-bold">{item.quantity}</span>
                         <button onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.size, item.color)} className="p-1.5 hover:bg-secondary"><Plus className="w-3 h-3" /></button>
                       </div>
-                      <span className="font-bold text-primary">{formatPrice(item.product.price * item.quantity)} ر.ي</span>
+                      <Price value={item.product.price * item.quantity} size="sm" layout="column" />
                       <button onClick={() => removeItem(item.product.id, item.size, item.color)} className="p-2 text-destructive hover:bg-destructive/10 rounded-lg">
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -53,12 +54,12 @@ const CartPage = () => {
             <div className="glass-card rounded-xl p-6 h-fit sticky top-24 space-y-4">
               <h3 className="font-bold text-lg">ملخص الطلب</h3>
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between"><span className="text-muted-foreground">المجموع الفرعي</span><span>{formatPrice(totalPrice)} ر.ي</span></div>
+                <div className="flex justify-between items-start"><span className="text-muted-foreground">المجموع الفرعي</span><Price value={totalPrice} size="sm" layout="column" className="items-end text-left" /></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">التوصيل</span><span className="text-green-400">مجاني</span></div>
               </div>
-              <div className="border-t border-border pt-4 flex justify-between font-black text-lg">
+              <div className="border-t border-border pt-4 flex justify-between items-start font-black text-lg">
                 <span>الإجمالي</span>
-                <span className="text-primary">{formatPrice(totalPrice)} ر.ي</span>
+                <Price value={totalPrice} size="md" layout="column" className="items-end text-left" />
               </div>
               <Link to="/checkout">
                 <Button className="w-full gold-gradient text-primary-foreground font-bold text-base py-6 hover:opacity-90">
