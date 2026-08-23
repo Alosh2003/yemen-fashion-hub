@@ -80,6 +80,10 @@ const AdminSettings = () => {
       twitter_url: form.twitter_url,
       tiktok_url: form.tiktok_url,
       address: form.address,
+      currency_old_label: form.currency_old_label || "ريال قديم",
+      currency_new_label: form.currency_new_label || "ريال جديد",
+      currency_rate: Number(form.currency_rate) > 0 ? Number(form.currency_rate) : 1,
+      show_dual_currency: form.show_dual_currency !== false,
     };
     let error;
     if (form.id) {
@@ -161,6 +165,38 @@ const AdminSettings = () => {
           </div>
         </div>
         <p className="text-xs text-muted-foreground">القيمة بصيغة HSL (مثال: 45 90% 55%) — يمكنك استخدام منتقي الألوان</p>
+      </div>
+
+      {/* Currency */}
+      <div className="bg-card border border-border rounded-xl p-5 space-y-4">
+        <h4 className="font-bold">العملة</h4>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label>اسم العملة القديمة</Label>
+            <Input value={form.currency_old_label ?? "ريال قديم"} onChange={(e) => set("currency_old_label", e.target.value)} className="text-right" />
+          </div>
+          <div className="space-y-2">
+            <Label>اسم العملة الجديدة</Label>
+            <Input value={form.currency_new_label ?? "ريال جديد"} onChange={(e) => set("currency_new_label", e.target.value)} className="text-right" />
+          </div>
+          <div className="space-y-2">
+            <Label>سعر التحويل (كم من العملة القديمة يساوي 1 من الجديدة)</Label>
+            <Input type="number" min={1} step="0.01" value={form.currency_rate ?? 250} onChange={(e) => set("currency_rate", e.target.value)} dir="ltr" />
+          </div>
+          <div className="space-y-2">
+            <Label>عرض السعر بالعملتين</Label>
+            <div className="flex items-center gap-3 h-10">
+              <input
+                type="checkbox"
+                checked={form.show_dual_currency !== false}
+                onChange={(e) => set("show_dual_currency", e.target.checked)}
+                className="w-4 h-4 accent-primary"
+              />
+              <span className="text-sm text-muted-foreground">إظهار خانة السعر بالعملة الجديدة بجانب القديمة</span>
+            </div>
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground">تُدخل أسعار المنتجات بالعملة القديمة، ويُحسب السعر بالعملة الجديدة تلقائياً.</p>
       </div>
 
       {/* Contact */}

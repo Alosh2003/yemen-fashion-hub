@@ -1,49 +1,32 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Product } from "@/data/products";
-import { getActiveCategories, getCategoryProducts } from "@/lib/catalog";
 import ProductCard from "@/components/ProductCard";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Loader2 } from "lucide-react";
-
-type CategoryInfo = { name: string; icon: string };
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useCategories, useCategoryProducts } from "@/hooks/useCatalog";
+import { PRODUCTS_PAGE_SIZE } from "@/lib/catalog";
+import { EmptyState, ErrorState, ProductGridSkeleton } from "@/components/CatalogStates";
 
 const CategoryPage = () => {
   const { id } = useParams<{ id: string }>();
-  const [category, setCategory] = useState<CategoryInfo | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
 
-  useEffect(() => {
-    let mounted = true;
+  useEffect(() => setPage(1), [id]);
 
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const [cats, prodData] = await Promise.all([
-          getActiveCategories(),
-          getCategoryProducts(id!),
-        ]);
+  const categoriesQuery = useCategories();
+  const productsQuery = useCategoryProducts(id, page);
 
-        if (!mounted) return;
-        const catData = cats.find((cat) => cat.slug === id);
-        setCategory(catData ? { name: catData.name, icon: catData.icon } : null);
-        setProducts(prodData);
-      } catch (error) {
-        console.error("Failed to load category page", error);
-        if (mounted) {
-          setCategory(null);
-          setProducts([]);
-        }
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
-    if (id) fetchData();
+  const category = (categoriesQuery.data ?? []).find((cat) => cat.slug === id);
+  const products = productsQuery.data?.items ?? [];
+  const total = productsQuery.data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / PRODUCTS_PAGE_SIZE));
 
-    return () => { mounted = false; };
-  }, [id]);
+  const goTo = (next: number) => {
+    setPage(Math.min(Math.max(1, next), totalPages));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <div className="min-h-screen">
@@ -53,20 +36,55 @@ const CategoryPage = () => {
           <h1 className="text-3xl font-black">
             {category?.icon} {category?.name || "الفئة"}
           </h1>
-          <p className="text-muted-foreground mt-1">{products.length} منتج متاح</p>
+          <p className="text-muted-foreground mt-1">
+            {productsQuery.isLoading ? "جاري تحميل المنتجات..." : `${total} منتج متاح`}
+          </p>
         </div>
-        {loading ? (
-          <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
-        ) : products.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {products.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
+
+        {productsQuery.isLoading ? (
+          <ProductGridSkeleton count={PRODUCTS_PAGE_SIZE} />
+        ) : productsQuery.isError ? (
+          <ErrorState
+            title="تعذر تحميل منتجات هذا القسم"
+            onRetry={() => productsQuery.refetch()}
+            retrying={productsQuery.isFetching}
+          />
+        ) : products.length === 0 ? (
+          <EmptyState title="لا توجد منتجات في هذا القسم حالياً" description="جرّب قسماً آخر أو عد لاحقاً" />
         ) : (
-          <div className="text-center py-20 text-muted-foreground">
-            <p className="text-xl">لا توجد منتجات في هذا القسم حالياً</p>
-          </div>
+          <>
+            <div
+              className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 transition-opacity ${
+                productsQuery.isFetching ? "opacity-60" : ""
+              }`}
+            >
+              {products.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-10">
+                <Button variant="outline" size="icon" onClick={() => goTo(page - 1)} disabled={page === 1}>
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+                {Array.from({ length: totalPages }).map((_, i) => (
+                  <Button
+                    key={i}
+                    variant={page === i + 1 ? "default" : "outline"}
+                    size="icon"
+                    onClick={() => goTo(i + 1)}
+                    className={page === i + 1 ? "gold-gradient text-primary-foreground font-bold" : ""}
+                  >
+                    {i + 1}
+                  </Button>
+                ))}
+                <Button variant="outline" size="icon" onClick={() => goTo(page + 1)} disabled={page === totalPages}>
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </div>
       <Footer />

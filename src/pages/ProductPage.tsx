@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Price from "@/components/Price";
 
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -135,10 +136,12 @@ const ProductPage = () => {
               </div>
               <span className="text-sm text-muted-foreground">({product.reviews} تقييم)</span>
             </div>
-            <div className="flex items-baseline gap-3">
-              <span className="text-3xl font-black text-primary">{formatPrice(product.price)} ر.ي</span>
+            <div className="space-y-1">
+              <Price value={product.price} size="lg" />
               {product.original_price && (
-                <span className="text-lg text-muted-foreground line-through">{formatPrice(product.original_price)} ر.ي</span>
+                <div className="text-sm text-muted-foreground line-through">
+                  {formatPrice(product.original_price)}
+                </div>
               )}
             </div>
 

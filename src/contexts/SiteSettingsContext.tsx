@@ -15,6 +15,10 @@ export interface SiteSettings {
   twitter_url: string | null;
   tiktok_url: string | null;
   address: string | null;
+  currency_old_label?: string;
+  currency_new_label?: string;
+  currency_rate?: number;
+  show_dual_currency?: boolean;
 }
 
 const defaultSettings: SiteSettings = {
@@ -30,6 +34,10 @@ const defaultSettings: SiteSettings = {
   twitter_url: null,
   tiktok_url: null,
   address: null,
+  currency_old_label: "ريال قديم",
+  currency_new_label: "ريال جديد",
+  currency_rate: 250,
+  show_dual_currency: true,
 };
 
 interface Ctx {
