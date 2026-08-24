@@ -104,6 +104,25 @@ const ProductPage = () => {
 
   const formatPrice = (price: number) => price.toLocaleString("ar-YE");
 
+  const buildWhatsAppLink = () => {
+    const raw = settings.whatsapp_number || "";
+    const number = raw.replace(/\D/g, "");
+    if (!number || !product) return "#";
+    const productUrl = typeof window !== "undefined" ? window.location.href : "";
+    const size = selectedSize || product.sizes?.[0] || "غير محدد";
+    const color = selectedColor || product.colors?.[0] || "غير محدد";
+    const message = [
+      `مرحباً، أنا مهتم بالاستفسار عن منتجكم:`,
+      `*${product.name}*`,
+      `السعر: ${formatPrice(product.price)} ${settings.currency_old_label || "ريال"}`,
+      `المقاس: ${size}`,
+      `اللون: ${color}`,
+      `الكمية: ${qty}`,
+      productUrl,
+    ].join("\n");
+    return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+  };
+
   const nextImage = () => setCurrentImageIndex((prev) => (prev + 1) % allImages.length);
   const prevImage = () => setCurrentImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
 
