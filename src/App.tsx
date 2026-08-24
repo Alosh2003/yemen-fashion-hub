@@ -1,4 +1,6 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
@@ -19,10 +21,41 @@ import MyOrdersPage from "./pages/MyOrdersPage";
 import OffersPage from "./pages/OffersPage";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      gcTime: 24 * 60 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
+
+// كاش مؤقت في المتصفح: يعرض الفئات والمنتجات فوراً عند العودة للموقع
+const persister = createSyncStoragePersister({
+  storage: typeof window !== "undefined" ? window.localStorage : undefined,
+  key: "loli-catalog-cache",
+  throttleTime: 1000,
+});
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
+  <PersistQueryClientProvider
+    client={queryClient}
+    persistOptions={{
+      persister,
+      maxAge: 24 * 60 * 60 * 1000,
+      dehydrateOptions: {
+        shouldDehydrateQuery: (query) => {
+          const key = String(query.queryKey?.[0] ?? "");
+          return (
+            query.state.status === "success" &&
+            ["categories", "category-counts", "featured-products", "category-products", "offer-products"].includes(key)
+          );
+        },
+      },
+    }}
+  >
     <TooltipProvider>
       <BrowserRouter>
         <AuthProvider>
@@ -54,7 +87,7 @@ const App = () => (
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
-  </QueryClientProvider>
+  </PersistQueryClientProvider>
 );
 
 export default App;
