@@ -235,6 +235,19 @@ const ProductPage = () => {
               </Button>
             </div>
 
+            {settings.whatsapp_number && (
+              <a
+                href={buildWhatsAppLink()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 font-bold text-white rounded-lg px-5 py-3 transition-colors hover:opacity-90 w-full sm:w-auto"
+                style={{ backgroundColor: "#25D366" }}
+              >
+                <WhatsAppIcon className="w-5 h-5" />
+                <span>حجز أو استفسار عبر واتساب</span>
+              </a>
+            )}
+
             {product.stock !== undefined && product.stock < 10 && product.stock > 0 && (
               <p className="text-sm text-destructive">⚠️ متبقي {product.stock} قطع فقط!</p>
             )}
