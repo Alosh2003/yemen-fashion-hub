@@ -36,6 +36,7 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
   const { addItem } = useCart();
+  const { settings } = useSiteSettings();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState("");
