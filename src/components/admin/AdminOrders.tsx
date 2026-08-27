@@ -186,6 +186,7 @@ const AdminOrders = () => {
                 <th className="text-right p-4 font-medium text-muted-foreground">المدينة</th>
                 <th className="text-right p-4 font-medium text-muted-foreground">الإجمالي</th>
                 <th className="text-right p-4 font-medium text-muted-foreground">الحالة</th>
+                <th className="text-right p-4 font-medium text-muted-foreground">حالة الدفع</th>
                 <th className="text-right p-4 font-medium text-muted-foreground">تغيير الحالة</th>
                 <th className="text-right p-4 font-medium text-muted-foreground">التفاصيل</th>
               </tr>
@@ -193,6 +194,7 @@ const AdminOrders = () => {
             <tbody>
               {filteredOrders.map((o) => {
                 const sInfo = orderStatusLabels[o.status] || orderStatusLabels.pending;
+                const pInfo = paymentStatusLabels[o.payment_status] || paymentStatusLabels.pending;
                 return (
                   <tr key={o.id} className="border-b border-border last:border-0 hover:bg-secondary/30">
                     <td className="p-4 font-medium text-xs">{o.order_number}</td>
@@ -206,8 +208,26 @@ const AdminOrders = () => {
                       <span className={`text-xs font-medium px-2 py-1 rounded-full ${sInfo.color}`}>{sInfo.icon} {sInfo.label}</span>
                     </td>
                     <td className="p-4">
+                      {isWallet(o) ? (
+                        <div className="space-y-1.5">
+                          <span className={`inline-block text-xs font-medium px-2 py-1 rounded-full ${pInfo.color}`}>{pInfo.icon} {pInfo.label}</span>
+                          {!o.payment_receipt_image && !o.payment_receipt_number && (
+                            <p className="text-[10px] text-muted-foreground">لم يُرفق إشعار بعد</p>
+                          )}
+                          <div className="flex gap-1">
+                            <button disabled={updating} onClick={() => updatePaymentStatus(o.id, "paid")} className="text-[10px] font-bold px-2 py-1 rounded-md bg-green-500/15 text-green-500 disabled:opacity-50">مدفوع</button>
+                            <button disabled={updating} onClick={() => updatePaymentStatus(o.id, "failed")} className="text-[10px] font-bold px-2 py-1 rounded-md bg-destructive/15 text-destructive disabled:opacity-50">مرفوض</button>
+                            <button disabled={updating} onClick={() => updatePaymentStatus(o.id, "pending")} className="text-[10px] font-bold px-2 py-1 rounded-md bg-yellow-500/15 text-yellow-500 disabled:opacity-50">بانتظار</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">💵 عند الاستلام</span>
+                      )}
+                    </td>
+                    <td className="p-4">
                       <div className="relative">
                         <select
+
                           value={o.status}
                           onChange={(e) => updateStatus(o.id, e.target.value)}
                           disabled={updating}
