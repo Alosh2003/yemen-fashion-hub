@@ -100,6 +100,41 @@ export type Database = {
           },
         ]
       }
+      order_receipts: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string
+          receipt_image: string | null
+          receipt_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id: string
+          receipt_image?: string | null
+          receipt_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string
+          receipt_image?: string | null
+          receipt_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_receipts_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_status_history: {
         Row: {
           changed_by: string | null
@@ -440,14 +475,6 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
-      }
-      submit_order_receipt: {
-        Args: {
-          p_order_id: string
-          p_receipt_image: string
-          p_receipt_number: string
-        }
-        Returns: undefined
       }
     }
     Enums: {
