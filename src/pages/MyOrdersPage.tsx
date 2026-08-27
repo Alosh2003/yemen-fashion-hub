@@ -55,6 +55,47 @@ const MyOrdersPage = () => {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [orderItems, setOrderItems] = useState<Record<string, OrderItem[]>>({});
   const [statusHistory, setStatusHistory] = useState<Record<string, StatusHistoryEntry[]>>({});
+  const [receiptDraft, setReceiptDraft] = useState<Record<string, { number: string; image: string | null }>>({});
+  const [savingReceipt, setSavingReceipt] = useState<string | null>(null);
+
+  const getDraft = (order: Order) =>
+    receiptDraft[order.id] ?? { number: order.payment_receipt_number || "", image: order.payment_receipt_image || null };
+
+  const setDraft = (orderId: string, patch: Partial<{ number: string; image: string | null }>) =>
+    setReceiptDraft((prev) => ({
+      ...prev,
+      [orderId]: { number: "", image: null, ...(prev[orderId] || {}), ...patch },
+    }));
+
+  const submitReceipt = async (order: Order) => {
+    const draft = getDraft(order);
+    if (!draft.image && !draft.number.trim()) {
+      toast({ title: "بيانات ناقصة", description: "أرفق صورة الإشعار أو أدخل رقم الإشعار", variant: "destructive" });
+      return;
+    }
+    setSavingReceipt(order.id);
+    try {
+      const { error } = await (supabase as any).rpc("submit_order_receipt", {
+        p_order_id: order.id,
+        p_receipt_number: draft.number.trim() || null,
+        p_receipt_image: draft.image || null,
+      });
+      if (error) throw error;
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === order.id
+            ? { ...o, payment_receipt_number: draft.number.trim() || null, payment_receipt_image: draft.image, payment_status: "pending" }
+            : o
+        )
+      );
+      toast({ title: "تم الإرسال", description: "تم إرسال إثبات الدفع، بانتظار تحقق الإدارة" });
+    } catch {
+      toast({ title: "خطأ", description: "تعذر إرسال إثبات الدفع", variant: "destructive" });
+    } finally {
+      setSavingReceipt(null);
+    }
+  };
+
 
   useEffect(() => {
     if (!authLoading && !user) {
