@@ -289,6 +289,26 @@ const AdminOrders = () => {
               </div>
             )}
 
+            {isWallet(selectedOrder) && (
+              <div className="space-y-2 border border-border rounded-lg p-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold">حالة الدفع:</span>
+                  <span className={`text-xs font-medium px-2 py-1 rounded-full ${(paymentStatusLabels[selectedOrder.payment_status] || paymentStatusLabels.pending).color}`}>
+                    {(paymentStatusLabels[selectedOrder.payment_status] || paymentStatusLabels.pending).icon} {(paymentStatusLabels[selectedOrder.payment_status] || paymentStatusLabels.pending).label}
+                  </span>
+                </div>
+                {!selectedOrder.payment_receipt_image && !selectedOrder.payment_receipt_number && (
+                  <p className="text-xs text-muted-foreground">لم يرفع العميل إشعار الدفع بعد.</p>
+                )}
+                <div className="flex gap-2">
+                  <button disabled={updating} onClick={() => updatePaymentStatus(selectedOrder.id, "paid")} className="text-xs font-bold px-3 py-1.5 rounded-lg bg-green-500/15 text-green-500 disabled:opacity-50">💰 مدفوع</button>
+                  <button disabled={updating} onClick={() => updatePaymentStatus(selectedOrder.id, "failed")} className="text-xs font-bold px-3 py-1.5 rounded-lg bg-destructive/15 text-destructive disabled:opacity-50">🚫 مرفوض</button>
+                  <button disabled={updating} onClick={() => updatePaymentStatus(selectedOrder.id, "pending")} className="text-xs font-bold px-3 py-1.5 rounded-lg bg-yellow-500/15 text-yellow-500 disabled:opacity-50">🕐 بانتظار الإشعار</button>
+                </div>
+              </div>
+            )}
+
+
             <div className="space-y-2">
               <p className="font-bold text-sm">المنتجات:</p>
               {orderItems.map((item) => (
