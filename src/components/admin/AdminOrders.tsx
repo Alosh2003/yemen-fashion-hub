@@ -160,6 +160,10 @@ const AdminOrders = () => {
         <button onClick={() => setFilterStatus("all")} className={`px-3 py-1.5 rounded-full text-xs font-bold transition ${filterStatus === "all" ? "gold-gradient text-primary-foreground" : "bg-secondary text-muted-foreground"}`}>
           الكل ({orders.length})
         </button>
+        <button onClick={() => setFilterStatus("wallet_pending")} className={`px-3 py-1.5 rounded-full text-xs font-bold transition ${filterStatus === "wallet_pending" ? "bg-yellow-500/30 text-yellow-500" : "bg-secondary text-muted-foreground"}`}>
+          🕐 محافظ بانتظار التحقق ({orders.filter((o) => isWallet(o) && o.payment_status === "pending").length})
+        </button>
+
         {statusOptions.map((s) => {
           const info = orderStatusLabels[s];
           const count = orders.filter((o) => o.status === s).length;
