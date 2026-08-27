@@ -42,3 +42,11 @@ export const orderStatusLabels: Record<string, { label: string; color: string; i
   cancelled: { label: "ملغي", color: "text-destructive bg-destructive/10", icon: "❌" },
   returned: { label: "مسترجع", color: "text-muted-foreground bg-muted", icon: "↩️" },
 };
+
+export const paymentStatusLabels: Record<string, { label: string; color: string; icon: string }> = {
+  pending: { label: "بانتظار الإشعار", color: "text-yellow-500 bg-yellow-500/10", icon: "🕐" },
+  paid: { label: "مدفوع", color: "text-green-500 bg-green-500/10", icon: "💰" },
+  failed: { label: "مرفوض", color: "text-destructive bg-destructive/10", icon: "🚫" },
+  refunded: { label: "مسترجع المبلغ", color: "text-muted-foreground bg-muted", icon: "↩️" },
+};
+
