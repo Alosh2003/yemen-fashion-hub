@@ -5,7 +5,9 @@ import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { orderStatusLabels } from "@/data/deliveryEstimates";
+import ImageUpload from "@/components/ui/image-upload";
+import { toast } from "@/hooks/use-toast";
+import { orderStatusLabels, paymentStatusLabels } from "@/data/deliveryEstimates";
 import { Package, Clock, MapPin, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 
 type Order = {
@@ -13,6 +15,9 @@ type Order = {
   order_number: string;
   status: string;
   payment_method: string;
+  payment_status: string;
+  payment_receipt_number: string | null;
+  payment_receipt_image: string | null;
   customer_name: string;
   city: string;
   area: string;
@@ -22,6 +27,7 @@ type Order = {
   created_at: string;
   status_updated_at: string;
 };
+
 
 type OrderItem = {
   id: string;
