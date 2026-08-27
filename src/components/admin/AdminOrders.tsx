@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { orderStatusLabels } from "@/data/deliveryEstimates";
+import { orderStatusLabels, paymentStatusLabels } from "@/data/deliveryEstimates";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, Eye, X, ChevronDown } from "lucide-react";
+
 
 type Order = {
   id: string;
@@ -97,10 +98,34 @@ const AdminOrders = () => {
     }
   };
 
+  const updatePaymentStatus = async (orderId: string, newPaymentStatus: string) => {
+    if (!user) return;
+    setUpdating(true);
+    try {
+      const { error } = await supabase.from("orders").update({ payment_status: newPaymentStatus as any }).eq("id", orderId);
+      if (error) throw error;
+      setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, payment_status: newPaymentStatus } : o)));
+      if (selectedOrder?.id === orderId) setSelectedOrder({ ...selectedOrder, payment_status: newPaymentStatus });
+      toast({ title: "تم التحديث", description: `حالة الدفع: ${paymentStatusLabels[newPaymentStatus]?.label}` });
+    } catch {
+      toast({ title: "خطأ", description: "فشل تحديث حالة الدفع", variant: "destructive" });
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const isWallet = (o: Order) => o.payment_method !== "cash_on_delivery";
+
   const formatPrice = (n: number) => n.toLocaleString("ar-YE");
   const formatDate = (d: string) => new Date(d).toLocaleDateString("ar-YE", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 
-  const filteredOrders = filterStatus === "all" ? orders : orders.filter((o) => o.status === filterStatus);
+  const filteredOrders =
+    filterStatus === "all"
+      ? orders
+      : filterStatus === "wallet_pending"
+      ? orders.filter((o) => isWallet(o) && o.payment_status === "pending")
+      : orders.filter((o) => o.status === filterStatus);
+
 
   // Stats
   const stats = {
