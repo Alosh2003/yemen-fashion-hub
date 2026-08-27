@@ -441,6 +441,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      submit_order_receipt: {
+        Args: {
+          p_order_id: string
+          p_receipt_image: string
+          p_receipt_number: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "customer" | "support"
