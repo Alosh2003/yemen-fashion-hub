@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { orderStatusLabels } from "@/data/deliveryEstimates";
+import { orderStatusLabels, paymentStatusLabels } from "@/data/deliveryEstimates";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, Eye, X, ChevronDown } from "lucide-react";
+
 
 type Order = {
   id: string;
@@ -97,10 +98,34 @@ const AdminOrders = () => {
     }
   };
 
+  const updatePaymentStatus = async (orderId: string, newPaymentStatus: string) => {
+    if (!user) return;
+    setUpdating(true);
+    try {
+      const { error } = await supabase.from("orders").update({ payment_status: newPaymentStatus as any }).eq("id", orderId);
+      if (error) throw error;
+      setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, payment_status: newPaymentStatus } : o)));
+      if (selectedOrder?.id === orderId) setSelectedOrder({ ...selectedOrder, payment_status: newPaymentStatus });
+      toast({ title: "تم التحديث", description: `حالة الدفع: ${paymentStatusLabels[newPaymentStatus]?.label}` });
+    } catch {
+      toast({ title: "خطأ", description: "فشل تحديث حالة الدفع", variant: "destructive" });
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const isWallet = (o: Order) => o.payment_method !== "cash_on_delivery";
+
   const formatPrice = (n: number) => n.toLocaleString("ar-YE");
   const formatDate = (d: string) => new Date(d).toLocaleDateString("ar-YE", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 
-  const filteredOrders = filterStatus === "all" ? orders : orders.filter((o) => o.status === filterStatus);
+  const filteredOrders =
+    filterStatus === "all"
+      ? orders
+      : filterStatus === "wallet_pending"
+      ? orders.filter((o) => isWallet(o) && o.payment_status === "pending")
+      : orders.filter((o) => o.status === filterStatus);
+
 
   // Stats
   const stats = {
@@ -135,6 +160,10 @@ const AdminOrders = () => {
         <button onClick={() => setFilterStatus("all")} className={`px-3 py-1.5 rounded-full text-xs font-bold transition ${filterStatus === "all" ? "gold-gradient text-primary-foreground" : "bg-secondary text-muted-foreground"}`}>
           الكل ({orders.length})
         </button>
+        <button onClick={() => setFilterStatus("wallet_pending")} className={`px-3 py-1.5 rounded-full text-xs font-bold transition ${filterStatus === "wallet_pending" ? "bg-yellow-500/30 text-yellow-500" : "bg-secondary text-muted-foreground"}`}>
+          🕐 محافظ بانتظار التحقق ({orders.filter((o) => isWallet(o) && o.payment_status === "pending").length})
+        </button>
+
         {statusOptions.map((s) => {
           const info = orderStatusLabels[s];
           const count = orders.filter((o) => o.status === s).length;
@@ -157,6 +186,7 @@ const AdminOrders = () => {
                 <th className="text-right p-4 font-medium text-muted-foreground">المدينة</th>
                 <th className="text-right p-4 font-medium text-muted-foreground">الإجمالي</th>
                 <th className="text-right p-4 font-medium text-muted-foreground">الحالة</th>
+                <th className="text-right p-4 font-medium text-muted-foreground">حالة الدفع</th>
                 <th className="text-right p-4 font-medium text-muted-foreground">تغيير الحالة</th>
                 <th className="text-right p-4 font-medium text-muted-foreground">التفاصيل</th>
               </tr>
@@ -164,6 +194,7 @@ const AdminOrders = () => {
             <tbody>
               {filteredOrders.map((o) => {
                 const sInfo = orderStatusLabels[o.status] || orderStatusLabels.pending;
+                const pInfo = paymentStatusLabels[o.payment_status] || paymentStatusLabels.pending;
                 return (
                   <tr key={o.id} className="border-b border-border last:border-0 hover:bg-secondary/30">
                     <td className="p-4 font-medium text-xs">{o.order_number}</td>
@@ -177,8 +208,26 @@ const AdminOrders = () => {
                       <span className={`text-xs font-medium px-2 py-1 rounded-full ${sInfo.color}`}>{sInfo.icon} {sInfo.label}</span>
                     </td>
                     <td className="p-4">
+                      {isWallet(o) ? (
+                        <div className="space-y-1.5">
+                          <span className={`inline-block text-xs font-medium px-2 py-1 rounded-full ${pInfo.color}`}>{pInfo.icon} {pInfo.label}</span>
+                          {!o.payment_receipt_image && !o.payment_receipt_number && (
+                            <p className="text-[10px] text-muted-foreground">لم يُرفق إشعار بعد</p>
+                          )}
+                          <div className="flex gap-1">
+                            <button disabled={updating} onClick={() => updatePaymentStatus(o.id, "paid")} className="text-[10px] font-bold px-2 py-1 rounded-md bg-green-500/15 text-green-500 disabled:opacity-50">مدفوع</button>
+                            <button disabled={updating} onClick={() => updatePaymentStatus(o.id, "failed")} className="text-[10px] font-bold px-2 py-1 rounded-md bg-destructive/15 text-destructive disabled:opacity-50">مرفوض</button>
+                            <button disabled={updating} onClick={() => updatePaymentStatus(o.id, "pending")} className="text-[10px] font-bold px-2 py-1 rounded-md bg-yellow-500/15 text-yellow-500 disabled:opacity-50">بانتظار</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">💵 عند الاستلام</span>
+                      )}
+                    </td>
+                    <td className="p-4">
                       <div className="relative">
                         <select
+
                           value={o.status}
                           onChange={(e) => updateStatus(o.id, e.target.value)}
                           disabled={updating}
@@ -239,6 +288,26 @@ const AdminOrders = () => {
                 />
               </div>
             )}
+
+            {isWallet(selectedOrder) && (
+              <div className="space-y-2 border border-border rounded-lg p-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold">حالة الدفع:</span>
+                  <span className={`text-xs font-medium px-2 py-1 rounded-full ${(paymentStatusLabels[selectedOrder.payment_status] || paymentStatusLabels.pending).color}`}>
+                    {(paymentStatusLabels[selectedOrder.payment_status] || paymentStatusLabels.pending).icon} {(paymentStatusLabels[selectedOrder.payment_status] || paymentStatusLabels.pending).label}
+                  </span>
+                </div>
+                {!selectedOrder.payment_receipt_image && !selectedOrder.payment_receipt_number && (
+                  <p className="text-xs text-muted-foreground">لم يرفع العميل إشعار الدفع بعد.</p>
+                )}
+                <div className="flex gap-2">
+                  <button disabled={updating} onClick={() => updatePaymentStatus(selectedOrder.id, "paid")} className="text-xs font-bold px-3 py-1.5 rounded-lg bg-green-500/15 text-green-500 disabled:opacity-50">💰 مدفوع</button>
+                  <button disabled={updating} onClick={() => updatePaymentStatus(selectedOrder.id, "failed")} className="text-xs font-bold px-3 py-1.5 rounded-lg bg-destructive/15 text-destructive disabled:opacity-50">🚫 مرفوض</button>
+                  <button disabled={updating} onClick={() => updatePaymentStatus(selectedOrder.id, "pending")} className="text-xs font-bold px-3 py-1.5 rounded-lg bg-yellow-500/15 text-yellow-500 disabled:opacity-50">🕐 بانتظار الإشعار</button>
+                </div>
+              </div>
+            )}
+
 
             <div className="space-y-2">
               <p className="font-bold text-sm">المنتجات:</p>

@@ -5,7 +5,9 @@ import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { orderStatusLabels } from "@/data/deliveryEstimates";
+import ImageUpload from "@/components/ui/image-upload";
+import { toast } from "@/hooks/use-toast";
+import { orderStatusLabels, paymentStatusLabels } from "@/data/deliveryEstimates";
 import { Package, Clock, MapPin, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 
 type Order = {
@@ -13,6 +15,9 @@ type Order = {
   order_number: string;
   status: string;
   payment_method: string;
+  payment_status: string;
+  payment_receipt_number: string | null;
+  payment_receipt_image: string | null;
   customer_name: string;
   city: string;
   area: string;
@@ -22,6 +27,7 @@ type Order = {
   created_at: string;
   status_updated_at: string;
 };
+
 
 type OrderItem = {
   id: string;
@@ -49,6 +55,47 @@ const MyOrdersPage = () => {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [orderItems, setOrderItems] = useState<Record<string, OrderItem[]>>({});
   const [statusHistory, setStatusHistory] = useState<Record<string, StatusHistoryEntry[]>>({});
+  const [receiptDraft, setReceiptDraft] = useState<Record<string, { number: string; image: string | null }>>({});
+  const [savingReceipt, setSavingReceipt] = useState<string | null>(null);
+
+  const getDraft = (order: Order) =>
+    receiptDraft[order.id] ?? { number: order.payment_receipt_number || "", image: order.payment_receipt_image || null };
+
+  const setDraft = (orderId: string, patch: Partial<{ number: string; image: string | null }>) =>
+    setReceiptDraft((prev) => ({
+      ...prev,
+      [orderId]: { number: "", image: null, ...(prev[orderId] || {}), ...patch },
+    }));
+
+  const submitReceipt = async (order: Order) => {
+    const draft = getDraft(order);
+    if (!draft.image && !draft.number.trim()) {
+      toast({ title: "بيانات ناقصة", description: "أرفق صورة الإشعار أو أدخل رقم الإشعار", variant: "destructive" });
+      return;
+    }
+    setSavingReceipt(order.id);
+    try {
+      const { error } = await (supabase as any).rpc("submit_order_receipt", {
+        p_order_id: order.id,
+        p_receipt_number: draft.number.trim() || null,
+        p_receipt_image: draft.image || null,
+      });
+      if (error) throw error;
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === order.id
+            ? { ...o, payment_receipt_number: draft.number.trim() || null, payment_receipt_image: draft.image, payment_status: "pending" }
+            : o
+        )
+      );
+      toast({ title: "تم الإرسال", description: "تم إرسال إثبات الدفع، بانتظار تحقق الإدارة" });
+    } catch {
+      toast({ title: "خطأ", description: "تعذر إرسال إثبات الدفع", variant: "destructive" });
+    } finally {
+      setSavingReceipt(null);
+    }
+  };
+
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -172,6 +219,54 @@ const MyOrdersPage = () => {
                           </div>
                         </div>
                       )}
+
+                      {/* Wallet payment proof */}
+                      {order.payment_method !== "cash_on_delivery" && (() => {
+                        const pInfo = paymentStatusLabels[order.payment_status] || paymentStatusLabels.pending;
+                        const draft = getDraft(order);
+                        const canEdit = order.payment_status !== "paid" && !["delivered", "cancelled", "returned"].includes(order.status);
+                        return (
+                          <div className="border border-border rounded-lg p-3 space-y-3">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-sm font-bold">حالة الدفع (محفظة إلكترونية):</span>
+                              <span className={`text-xs font-medium px-2 py-1 rounded-full ${pInfo.color}`}>{pInfo.icon} {pInfo.label}</span>
+                            </div>
+
+                            {order.payment_receipt_image && (
+                              <img src={order.payment_receipt_image} alt="إشعار الدفع" className="w-full max-h-52 object-contain rounded-lg border border-border" />
+                            )}
+                            {order.payment_receipt_number && (
+                              <p className="text-xs text-muted-foreground">رقم الإشعار: <span className="text-primary font-medium">{order.payment_receipt_number}</span></p>
+                            )}
+
+                            {canEdit ? (
+                              <div className="space-y-2">
+                                <p className="text-xs text-muted-foreground">
+                                  {order.payment_receipt_image || order.payment_receipt_number ? "يمكنك تحديث إثبات الدفع:" : "أرفق صورة إثبات الدفع أو رقم الإشعار ليتحقق منه فريقنا:"}
+                                </p>
+                                <ImageUpload value={draft.image} onChange={(v) => setDraft(order.id, { image: v })} label="صورة إثبات الدفع" />
+                                <input
+                                  value={draft.number}
+                                  onChange={(e) => setDraft(order.id, { number: e.target.value })}
+                                  placeholder="رقم الإشعار (اختياري إذا أرفقت الصورة)"
+                                  maxLength={50}
+                                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                                />
+                                <Button
+                                  onClick={() => submitReceipt(order)}
+                                  disabled={savingReceipt === order.id}
+                                  className="gold-gradient text-primary-foreground font-bold w-full"
+                                >
+                                  {savingReceipt === order.id ? <Loader2 className="w-4 h-4 animate-spin" /> : "إرسال إثبات الدفع"}
+                                </Button>
+                              </div>
+                            ) : (
+                              <p className="text-xs text-muted-foreground">تم تأكيد الدفع، شكراً لك.</p>
+                            )}
+                          </div>
+                        );
+                      })()}
+
 
                       {/* Delivery info */}
                       <div className="flex items-start gap-2 text-sm">
