@@ -220,6 +220,54 @@ const MyOrdersPage = () => {
                         </div>
                       )}
 
+                      {/* Wallet payment proof */}
+                      {order.payment_method !== "cash_on_delivery" && (() => {
+                        const pInfo = paymentStatusLabels[order.payment_status] || paymentStatusLabels.pending;
+                        const draft = getDraft(order);
+                        const canEdit = order.payment_status !== "paid" && !["delivered", "cancelled", "returned"].includes(order.status);
+                        return (
+                          <div className="border border-border rounded-lg p-3 space-y-3">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-sm font-bold">حالة الدفع (محفظة إلكترونية):</span>
+                              <span className={`text-xs font-medium px-2 py-1 rounded-full ${pInfo.color}`}>{pInfo.icon} {pInfo.label}</span>
+                            </div>
+
+                            {order.payment_receipt_image && (
+                              <img src={order.payment_receipt_image} alt="إشعار الدفع" className="w-full max-h-52 object-contain rounded-lg border border-border" />
+                            )}
+                            {order.payment_receipt_number && (
+                              <p className="text-xs text-muted-foreground">رقم الإشعار: <span className="text-primary font-medium">{order.payment_receipt_number}</span></p>
+                            )}
+
+                            {canEdit ? (
+                              <div className="space-y-2">
+                                <p className="text-xs text-muted-foreground">
+                                  {order.payment_receipt_image || order.payment_receipt_number ? "يمكنك تحديث إثبات الدفع:" : "أرفق صورة إثبات الدفع أو رقم الإشعار ليتحقق منه فريقنا:"}
+                                </p>
+                                <ImageUpload value={draft.image} onChange={(v) => setDraft(order.id, { image: v })} label="صورة إثبات الدفع" />
+                                <input
+                                  value={draft.number}
+                                  onChange={(e) => setDraft(order.id, { number: e.target.value })}
+                                  placeholder="رقم الإشعار (اختياري إذا أرفقت الصورة)"
+                                  maxLength={50}
+                                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                                />
+                                <Button
+                                  onClick={() => submitReceipt(order)}
+                                  disabled={savingReceipt === order.id}
+                                  className="gold-gradient text-primary-foreground font-bold w-full"
+                                >
+                                  {savingReceipt === order.id ? <Loader2 className="w-4 h-4 animate-spin" /> : "إرسال إثبات الدفع"}
+                                </Button>
+                              </div>
+                            ) : (
+                              <p className="text-xs text-muted-foreground">تم تأكيد الدفع، شكراً لك.</p>
+                            )}
+                          </div>
+                        );
+                      })()}
+
+
                       {/* Delivery info */}
                       <div className="flex items-start gap-2 text-sm">
                         <MapPin className="w-4 h-4 text-primary mt-0.5" />
