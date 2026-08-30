@@ -75,16 +75,21 @@ const MyOrdersPage = () => {
     }
     setSavingReceipt(order.id);
     try {
-      const { error } = await (supabase as any).rpc("submit_order_receipt", {
-        p_order_id: order.id,
-        p_receipt_number: draft.number.trim() || null,
-        p_receipt_image: draft.image || null,
-      });
+      const { error } = await supabase
+        .from("order_receipts")
+        .upsert(
+          {
+            order_id: order.id,
+            receipt_number: draft.number.trim() || null,
+            receipt_image: draft.image || null,
+          },
+          { onConflict: "order_id" }
+        );
       if (error) throw error;
       setOrders((prev) =>
         prev.map((o) =>
           o.id === order.id
-            ? { ...o, payment_receipt_number: draft.number.trim() || null, payment_receipt_image: draft.image, payment_status: "pending" }
+            ? { ...o, payment_receipt_number: draft.number.trim() || null, payment_receipt_image: draft.image }
             : o
         )
       );
@@ -95,6 +100,7 @@ const MyOrdersPage = () => {
       setSavingReceipt(null);
     }
   };
+
 
 
   useEffect(() => {
