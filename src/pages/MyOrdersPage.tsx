@@ -75,16 +75,21 @@ const MyOrdersPage = () => {
     }
     setSavingReceipt(order.id);
     try {
-      const { error } = await (supabase as any).rpc("submit_order_receipt", {
-        p_order_id: order.id,
-        p_receipt_number: draft.number.trim() || null,
-        p_receipt_image: draft.image || null,
-      });
+      const { error } = await supabase
+        .from("order_receipts")
+        .upsert(
+          {
+            order_id: order.id,
+            receipt_number: draft.number.trim() || null,
+            receipt_image: draft.image || null,
+          },
+          { onConflict: "order_id" }
+        );
       if (error) throw error;
       setOrders((prev) =>
         prev.map((o) =>
           o.id === order.id
-            ? { ...o, payment_receipt_number: draft.number.trim() || null, payment_receipt_image: draft.image, payment_status: "pending" }
+            ? { ...o, payment_receipt_number: draft.number.trim() || null, payment_receipt_image: draft.image }
             : o
         )
       );
@@ -95,6 +100,7 @@ const MyOrdersPage = () => {
       setSavingReceipt(null);
     }
   };
+
 
 
   useEffect(() => {
@@ -122,9 +128,20 @@ const MyOrdersPage = () => {
       .from("orders")
       .select("*")
       .order("created_at", { ascending: false });
-    setOrders((data as Order[]) || []);
+    const list = (data as Order[]) || [];
+    const { data: receipts } = await supabase.from("order_receipts").select("*");
+    const byOrder = new Map((receipts || []).map((r: any) => [r.order_id, r]));
+    setOrders(
+      list.map((o) => {
+        const r = byOrder.get(o.id);
+        return r
+          ? { ...o, payment_receipt_number: r.receipt_number, payment_receipt_image: r.receipt_image }
+          : o;
+      })
+    );
     setLoading(false);
   };
+
 
   const toggleExpand = async (orderId: string) => {
     if (expandedOrder === orderId) {
