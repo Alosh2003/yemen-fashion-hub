@@ -128,9 +128,20 @@ const MyOrdersPage = () => {
       .from("orders")
       .select("*")
       .order("created_at", { ascending: false });
-    setOrders((data as Order[]) || []);
+    const list = (data as Order[]) || [];
+    const { data: receipts } = await supabase.from("order_receipts").select("*");
+    const byOrder = new Map((receipts || []).map((r: any) => [r.order_id, r]));
+    setOrders(
+      list.map((o) => {
+        const r = byOrder.get(o.id);
+        return r
+          ? { ...o, payment_receipt_number: r.receipt_number, payment_receipt_image: r.receipt_image }
+          : o;
+      })
+    );
     setLoading(false);
   };
+
 
   const toggleExpand = async (orderId: string) => {
     if (expandedOrder === orderId) {
