@@ -4,7 +4,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { orderStatusLabels, paymentStatusLabels } from "@/data/deliveryEstimates";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Eye, X, ChevronDown } from "lucide-react";
+import { Loader2, Eye, X, ChevronDown, Download, MessageCircle } from "lucide-react";
+import { buildPaymentWhatsAppUrl, downloadFile } from "@/lib/notify";
+
 
 
 type Order = {
@@ -107,8 +109,20 @@ const AdminOrders = () => {
     }
   };
 
+  const notifyCustomer = (order: Order, newPaymentStatus: string) => {
+    if (!order.customer_phone) return;
+    const url = buildPaymentWhatsAppUrl(
+      order.customer_phone,
+      newPaymentStatus,
+      order.order_number,
+      `${formatPrice(Number(order.total))} ر.ي`
+    );
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   const updatePaymentStatus = async (orderId: string, newPaymentStatus: string) => {
     if (!user) return;
+    const order = orders.find((o) => o.id === orderId) || (selectedOrder?.id === orderId ? selectedOrder : null);
     setUpdating(true);
     try {
       const { error } = await supabase.from("orders").update({ payment_status: newPaymentStatus as any }).eq("id", orderId);
@@ -116,12 +130,16 @@ const AdminOrders = () => {
       setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, payment_status: newPaymentStatus } : o)));
       if (selectedOrder?.id === orderId) setSelectedOrder({ ...selectedOrder, payment_status: newPaymentStatus });
       toast({ title: "تم التحديث", description: `حالة الدفع: ${paymentStatusLabels[newPaymentStatus]?.label}` });
+      if (order && ["pending", "paid", "failed"].includes(newPaymentStatus)) {
+        notifyCustomer(order, newPaymentStatus);
+      }
     } catch {
       toast({ title: "خطأ", description: "فشل تحديث حالة الدفع", variant: "destructive" });
     } finally {
       setUpdating(false);
     }
   };
+
 
   const isWallet = (o: Order) => o.payment_method !== "cash_on_delivery";
 
@@ -223,6 +241,31 @@ const AdminOrders = () => {
                           {!o.payment_receipt_image && !o.payment_receipt_number && (
                             <p className="text-[10px] text-muted-foreground">لم يُرفق إشعار بعد</p>
                           )}
+                          {o.payment_receipt_image && (
+                            <div className="flex items-center gap-1">
+                              <img
+                                src={o.payment_receipt_image}
+                                alt={`إشعار الدفع للطلب ${o.order_number}`}
+                                onClick={() => viewOrder(o)}
+                                className="w-8 h-8 object-cover rounded border border-border cursor-pointer"
+                              />
+                              <button
+                                onClick={() => downloadFile(o.payment_receipt_image!, `receipt-${o.order_number}.jpg`)}
+                                className="text-[10px] font-bold px-2 py-1 rounded-md bg-secondary flex items-center gap-1"
+                                title="تنزيل صورة الإشعار"
+                              >
+                                <Download className="w-3 h-3" /> تنزيل
+                              </button>
+                            </div>
+                          )}
+                          <button
+                            onClick={() => notifyCustomer(o, o.payment_status)}
+                            className="text-[10px] font-bold px-2 py-1 rounded-md bg-green-600/15 text-green-600 flex items-center gap-1"
+                            title="إرسال تنبيه واتساب للعميل"
+                          >
+                            <MessageCircle className="w-3 h-3" /> تنبيه واتساب
+                          </button>
+
                           <div className="flex gap-1">
                             <button disabled={updating} onClick={() => updatePaymentStatus(o.id, "paid")} className="text-[10px] font-bold px-2 py-1 rounded-md bg-green-500/15 text-green-500 disabled:opacity-50">مدفوع</button>
                             <button disabled={updating} onClick={() => updatePaymentStatus(o.id, "failed")} className="text-[10px] font-bold px-2 py-1 rounded-md bg-destructive/15 text-destructive disabled:opacity-50">مرفوض</button>
@@ -288,15 +331,32 @@ const AdminOrders = () => {
 
             {selectedOrder.payment_receipt_image && (
               <div className="space-y-2">
-                <p className="font-bold text-sm flex items-center gap-2">📋 صورة إشعار الدفع:</p>
-                <img 
-                  src={selectedOrder.payment_receipt_image} 
-                  alt="إشعار الدفع" 
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-bold text-sm flex items-center gap-2">📋 صورة إشعار الدفع:</p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => downloadFile(selectedOrder.payment_receipt_image!, `receipt-${selectedOrder.order_number}.jpg`)}
+                      className="text-xs font-bold px-3 py-1.5 rounded-lg bg-primary/15 text-primary flex items-center gap-1"
+                    >
+                      <Download className="w-3.5 h-3.5" /> تنزيل
+                    </button>
+                    <button
+                      onClick={() => window.open(selectedOrder.payment_receipt_image!, "_blank")}
+                      className="text-xs font-bold px-3 py-1.5 rounded-lg bg-secondary flex items-center gap-1"
+                    >
+                      <Eye className="w-3.5 h-3.5" /> عرض بالحجم الكامل
+                    </button>
+                  </div>
+                </div>
+                <img
+                  src={selectedOrder.payment_receipt_image}
+                  alt={`إشعار الدفع للطلب ${selectedOrder.order_number}`}
                   className="w-full max-h-64 object-contain rounded-lg border border-border cursor-pointer"
                   onClick={() => window.open(selectedOrder.payment_receipt_image!, '_blank')}
                 />
               </div>
             )}
+
 
             {isWallet(selectedOrder) && (
               <div className="space-y-2 border border-border rounded-lg p-3">

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   LayoutDashboard, Package, Users, Headphones, ShoppingBag,
-  Settings, ChevronLeft, ChevronRight, LogOut, TrendingUp, FolderOpen, Wallet
+  Settings, ChevronLeft, ChevronRight, LogOut, TrendingUp, FolderOpen, Wallet, ScrollText
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -13,6 +13,7 @@ import AdminSupport from "@/components/admin/AdminSupport";
 import AdminCategories from "@/components/admin/AdminCategories";
 import AdminWallets from "@/components/admin/AdminWallets";
 import AdminSettings from "@/components/admin/AdminSettings";
+import AdminAudit from "@/components/admin/AdminAudit";
 
 const tabs = [
   { id: "overview", label: "نظرة عامة", icon: LayoutDashboard },
@@ -21,6 +22,7 @@ const tabs = [
   { id: "orders", label: "الطلبات", icon: ShoppingBag },
   { id: "users", label: "المستخدمون", icon: Users },
   { id: "wallets", label: "المحافظ", icon: Wallet },
+  { id: "audit", label: "سجل التدقيق", icon: ScrollText },
   { id: "support", label: "الدعم الفني", icon: Headphones },
   { id: "settings", label: "إعدادات الموقع", icon: Settings },
 ];
@@ -44,6 +46,7 @@ const AdminDashboard = () => {
       case "products": return <AdminProducts />;
       case "orders": return <AdminOrders />;
       case "users": return <AdminUsers />;
+      case "audit": return <AdminAudit />;
       case "support": return <AdminSupport />;
       case "settings": return <AdminSettings />;
       default: return <AdminOverview />;
