@@ -331,15 +331,32 @@ const AdminOrders = () => {
 
             {selectedOrder.payment_receipt_image && (
               <div className="space-y-2">
-                <p className="font-bold text-sm flex items-center gap-2">📋 صورة إشعار الدفع:</p>
-                <img 
-                  src={selectedOrder.payment_receipt_image} 
-                  alt="إشعار الدفع" 
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-bold text-sm flex items-center gap-2">📋 صورة إشعار الدفع:</p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => downloadFile(selectedOrder.payment_receipt_image!, `receipt-${selectedOrder.order_number}.jpg`)}
+                      className="text-xs font-bold px-3 py-1.5 rounded-lg bg-primary/15 text-primary flex items-center gap-1"
+                    >
+                      <Download className="w-3.5 h-3.5" /> تنزيل
+                    </button>
+                    <button
+                      onClick={() => window.open(selectedOrder.payment_receipt_image!, "_blank")}
+                      className="text-xs font-bold px-3 py-1.5 rounded-lg bg-secondary flex items-center gap-1"
+                    >
+                      <Eye className="w-3.5 h-3.5" /> عرض بالحجم الكامل
+                    </button>
+                  </div>
+                </div>
+                <img
+                  src={selectedOrder.payment_receipt_image}
+                  alt={`إشعار الدفع للطلب ${selectedOrder.order_number}`}
                   className="w-full max-h-64 object-contain rounded-lg border border-border cursor-pointer"
                   onClick={() => window.open(selectedOrder.payment_receipt_image!, '_blank')}
                 />
               </div>
             )}
+
 
             {isWallet(selectedOrder) && (
               <div className="space-y-2 border border-border rounded-lg p-3">
