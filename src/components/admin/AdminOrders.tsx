@@ -241,6 +241,31 @@ const AdminOrders = () => {
                           {!o.payment_receipt_image && !o.payment_receipt_number && (
                             <p className="text-[10px] text-muted-foreground">لم يُرفق إشعار بعد</p>
                           )}
+                          {o.payment_receipt_image && (
+                            <div className="flex items-center gap-1">
+                              <img
+                                src={o.payment_receipt_image}
+                                alt={`إشعار الدفع للطلب ${o.order_number}`}
+                                onClick={() => viewOrder(o)}
+                                className="w-8 h-8 object-cover rounded border border-border cursor-pointer"
+                              />
+                              <button
+                                onClick={() => downloadFile(o.payment_receipt_image!, `receipt-${o.order_number}.jpg`)}
+                                className="text-[10px] font-bold px-2 py-1 rounded-md bg-secondary flex items-center gap-1"
+                                title="تنزيل صورة الإشعار"
+                              >
+                                <Download className="w-3 h-3" /> تنزيل
+                              </button>
+                            </div>
+                          )}
+                          <button
+                            onClick={() => notifyCustomer(o, o.payment_status)}
+                            className="text-[10px] font-bold px-2 py-1 rounded-md bg-green-600/15 text-green-600 flex items-center gap-1"
+                            title="إرسال تنبيه واتساب للعميل"
+                          >
+                            <MessageCircle className="w-3 h-3" /> تنبيه واتساب
+                          </button>
+
                           <div className="flex gap-1">
                             <button disabled={updating} onClick={() => updatePaymentStatus(o.id, "paid")} className="text-[10px] font-bold px-2 py-1 rounded-md bg-green-500/15 text-green-500 disabled:opacity-50">مدفوع</button>
                             <button disabled={updating} onClick={() => updatePaymentStatus(o.id, "failed")} className="text-[10px] font-bold px-2 py-1 rounded-md bg-destructive/15 text-destructive disabled:opacity-50">مرفوض</button>
