@@ -4,7 +4,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { orderStatusLabels, paymentStatusLabels } from "@/data/deliveryEstimates";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Eye, X, ChevronDown } from "lucide-react";
+import { Loader2, Eye, X, ChevronDown, Download, MessageCircle } from "lucide-react";
+import { buildPaymentWhatsAppUrl, downloadFile } from "@/lib/notify";
+
 
 
 type Order = {
