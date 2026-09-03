@@ -107,8 +107,20 @@ const AdminOrders = () => {
     }
   };
 
+  const notifyCustomer = (order: Order, newPaymentStatus: string) => {
+    if (!order.customer_phone) return;
+    const url = buildPaymentWhatsAppUrl(
+      order.customer_phone,
+      newPaymentStatus,
+      order.order_number,
+      `${formatPrice(Number(order.total))} ر.ي`
+    );
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   const updatePaymentStatus = async (orderId: string, newPaymentStatus: string) => {
     if (!user) return;
+    const order = orders.find((o) => o.id === orderId) || (selectedOrder?.id === orderId ? selectedOrder : null);
     setUpdating(true);
     try {
       const { error } = await supabase.from("orders").update({ payment_status: newPaymentStatus as any }).eq("id", orderId);
@@ -116,12 +128,16 @@ const AdminOrders = () => {
       setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, payment_status: newPaymentStatus } : o)));
       if (selectedOrder?.id === orderId) setSelectedOrder({ ...selectedOrder, payment_status: newPaymentStatus });
       toast({ title: "تم التحديث", description: `حالة الدفع: ${paymentStatusLabels[newPaymentStatus]?.label}` });
+      if (order && ["pending", "paid", "failed"].includes(newPaymentStatus)) {
+        notifyCustomer(order, newPaymentStatus);
+      }
     } catch {
       toast({ title: "خطأ", description: "فشل تحديث حالة الدفع", variant: "destructive" });
     } finally {
       setUpdating(false);
     }
   };
+
 
   const isWallet = (o: Order) => o.payment_method !== "cash_on_delivery";
 
